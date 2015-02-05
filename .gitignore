@@ -1,3 +1,20 @@
+# Unreal Engine 4 folders
+/[Bb]inaries
+/[Cc]onfig
+/[Bb]uild
+/[Ii]ntermediate
+/[Cc]ontent
+/[Ss]aved
+
+# Visual Studio
+*.suo
+*.sdf
+*.sln
+*.uproject
+*.cs
+*.rc
+*.png
+
 # Compiled Object files
 *.slo
 *.lo
