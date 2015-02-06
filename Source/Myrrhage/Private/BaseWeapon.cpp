@@ -1,10 +1,10 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "MyrrhagePrivate.h"
-#include "BaseArmor.h"
+#include "BaseWeapon.h"
 
-ABaseArmor::ABaseArmor(const class FObjectInitializer& PCIP)
+ABaseWeapon::ABaseWeapon(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
 {
-	ItemType = EItem::EArmor;
+	ItemType = EItem::EWeapon;
 }

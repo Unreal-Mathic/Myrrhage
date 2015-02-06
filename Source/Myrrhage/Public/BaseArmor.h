@@ -13,7 +13,7 @@ class MYRRHAGE_API ABaseArmor : public ABaseEquipment
 {
 	GENERATED_BODY()
 
-public:
+protected:
 	ABaseArmor(const class FObjectInitializer& PCIP);
 
 };

@@ -2,7 +2,9 @@
 
 #pragma once
 
+#include "MyrrhageGlobals.h"
 #include "PaperCharacter.h"
+#include "EquipmentManager.h"
 #include "MyrrhageCharacter.generated.h"
 
 // This class is the default character for Myrrhage, and it is responsible for all
@@ -35,8 +37,17 @@ protected:
 	class UPaperFlipbook* IdleAnimation;
 
 	// Picked up items go in the CharacterInventory
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Inventory)
-	TArray<AActor*> CharacterInventory;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Myrrhage)
+	TArray<ABaseItem*> CharacterInventory;
+
+	// The character's innate abilities
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Myrrhage)
+	FStatStruct CharacterStats[5];
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Myrrhage)
+	UEquipmentManager* CharacterEquipment;
+
+	void InitializeCharacterStats();
 
 	/** Called to choose the correct animation to play based on the character's movement state */
 	void UpdateAnimation();
@@ -58,7 +69,17 @@ protected:
 
 	virtual void ReceiveHit(class UPrimitiveComponent*, class AActor*, class UPrimitiveComponent*, bool, FVector, FVector, FVector, const FHitResult&) override;
 	
-	void PickUpItems(class AActor*);
+	void PickUpItems(class ABaseItem*);
+
+	void OpenInventory();
+
+	void Equip(class ABaseEquipment*);
+
+	void Attack();
+
+	void StopAttack();
+
+	FString GetCharacterStats();
 
 public:
 	AMyrrhageCharacter(const FObjectInitializer& ObjectInitializer);

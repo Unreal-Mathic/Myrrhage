@@ -2,34 +2,9 @@
 
 #pragma once
 
+#include "MyrrhageGlobals.h"
 #include "PaperSpriteActor.h"
 #include "BaseItem.generated.h"
-
-#pragma region ENUMS
-UENUM(BlueprintType)
-namespace EItem
-{
-	enum Type
-	{
-		EArmor	UMETA(DisplayName = "Armor"),
-		EWeapon	UMETA(DisplayName = "Weapon"),
-		EPotion	UMETA(DisplayName = "Potion")
-	};
-}
-
-UENUM(BlueprintType)
-namespace EStat
-{
-	enum Type
-	{
-		EMight			UMETA(DisplayName = "Might"),
-		EKnowledge		UMETA(DisplayName = "Knowledge"),
-		EPresence		UMETA(DisplayName = "Presence"),
-		EResistance		UMETA(DisplayName = "Resistance"),
-		EAgility		UMETA(DisplayName = "Agility")
-	};
-}
-#pragma endregion ENUMS
 
 /**
  * 
@@ -40,15 +15,17 @@ class MYRRHAGE_API ABaseItem : public APaperSpriteActor
 	GENERATED_BODY()
 
 protected:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Items)
-	TEnumAsByte<EItem::Type> m_ItemType;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Item)
+	TEnumAsByte<EItem> ItemType;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Items)
-	FString m_Name;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Item)
+	FString Name;
 
 public:
 	UFUNCTION(BlueprintNativeEvent)
 	void OnPickUp();
+
+	ABaseItem(const class FObjectInitializer& PCIP);
 
 	FString GetItemName();
 };

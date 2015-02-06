@@ -2,32 +2,9 @@
 
 #pragma once
 
+#include "MyrrhageGlobals.h"
 #include "BaseItem.h"
 #include "BaseEquipment.generated.h"
-
-#pragma region STRUCTS
-USTRUCT(BlueprintType)
-struct FStatStruct
-{
-	GENERATED_USTRUCT_BODY()
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Items)
-	float StatValue;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Items)
-	TEnumAsByte<EStat::Type> StatType;
-
-	void SetValue(float value){ StatValue = value; }
-	float GetValue(){ return StatValue; }
-	void SetType(TEnumAsByte<EStat::Type> type){ StatType = type; }
-	TEnumAsByte<EStat::Type> GetType(){ return StatType; }
-
-	FStatStruct()
-	{
-
-	}
-};
-#pragma endregion STRUCTS
 
 /**
 *
@@ -38,9 +15,19 @@ class MYRRHAGE_API ABaseEquipment : public ABaseItem
 	GENERATED_BODY()
 
 protected:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Items)
-	TArray<FStatStruct> m_Stats;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Item)
+	TArray<FStatStruct> Stats;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Item)
+	FStatStruct RequiredStat;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Item)
+	TEnumAsByte<EEquippedOn> EquippedOn;
 public:
+	ABaseEquipment(const class FObjectInitializer& PCIP);
+
+	TEnumAsByte<EEquippedOn> GetEquippedOn();
+	TArray<FStatStruct> GetStats();
+
 	void OnPickUp_Implementation() override;
 };

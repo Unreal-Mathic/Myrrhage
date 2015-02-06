@@ -3,9 +3,20 @@
 #include "MyrrhagePrivate.h"
 #include "BaseEquipment.h"
 
+ABaseEquipment::ABaseEquipment(const class FObjectInitializer& PCIP) : Super(PCIP){}
+
+TArray<FStatStruct> ABaseEquipment::GetStats()
+{
+	return Stats;
+}
+
+TEnumAsByte<EEquippedOn> ABaseEquipment::GetEquippedOn()
+{
+	return EquippedOn;
+}
+
 void ABaseEquipment::OnPickUp_Implementation()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green, "I'VE BEEN PICKED UP");
 	Destroy();
 }
 

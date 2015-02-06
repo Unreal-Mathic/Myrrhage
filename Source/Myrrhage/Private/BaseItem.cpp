@@ -14,6 +14,8 @@ bool APaperSpriteActor::GetReferencedContentObjects(TArray<UObject*>& Objects) c
 }
 #endif
 
+ABaseItem::ABaseItem(const class FObjectInitializer& PCIP) : Super(PCIP){}
+
 void ABaseItem::OnPickUp_Implementation()
 {
 
@@ -21,5 +23,5 @@ void ABaseItem::OnPickUp_Implementation()
 
 FString ABaseItem::GetItemName()
 {
-	return m_Name;
+	return Name;
 }

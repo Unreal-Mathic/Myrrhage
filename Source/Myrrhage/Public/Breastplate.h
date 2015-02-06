@@ -15,6 +15,4 @@ class MYRRHAGE_API ABreastplate : public ABaseArmor
 
 public:
 	ABreastplate(const class FObjectInitializer& PCIP);
-
-	UPaperSprite* SourceSprite;
 };

@@ -6,11 +6,10 @@
 ABreastplate::ABreastplate(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
 {
-	
-	
 	FStatStruct a = FStatStruct();
 	FStatStruct b = FStatStruct();
 	FStatStruct c = FStatStruct();
+	RequiredStat = FStatStruct();
 
 	a.SetType(EStat::EMight);
 	a.SetValue((rand() % 10) + 1);
@@ -21,10 +20,13 @@ ABreastplate::ABreastplate(const class FObjectInitializer& PCIP)
 	c.SetType(EStat::EResistance);
 	c.SetValue((rand() % 10) + 1);
 
-	m_Stats.Add(a);
-	m_Stats.Add(b);
-	m_Stats.Add(c);
-	m_Name = FString(TEXT("BAKA"));
+	Stats.Add(a);
+	Stats.Add(b);
+	Stats.Add(c);
+	
+	RequiredStat.SetType(EStat::EMight);
+	RequiredStat.SetValue(8.0f);
+	Name = FString(TEXT("BAKA"));
 }
 
 
