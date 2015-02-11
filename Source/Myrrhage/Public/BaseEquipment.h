@@ -26,6 +26,7 @@ protected:
 public:
 	ABaseEquipment(const class FObjectInitializer& PCIP);
 
+	void SetEquippedOn(EEquippedOn);
 	TEnumAsByte<EEquippedOn> GetEquippedOn();
 	TArray<FStatStruct> GetStats();
 

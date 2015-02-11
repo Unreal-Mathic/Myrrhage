@@ -79,18 +79,9 @@ AMyrrhageCharacter::AMyrrhageCharacter(const FObjectInitializer& ObjectInitializ
 	// Enable replication on the Sprite component so animations show up when networked
 	GetSprite()->SetIsReplicated(true);
 	bReplicates = true;
-
-	InitializeCharacterStats();
+	
 	CharacterEquipment = NewObject<UEquipmentManager>();
-}
-
-void AMyrrhageCharacter::InitializeCharacterStats()
-{
-	CharacterStats[0] = FStatStruct(EStat::EAgility);
-	CharacterStats[1] = FStatStruct(EStat::EKnowledge);
-	CharacterStats[2] = FStatStruct(EStat::EMight);
-	CharacterStats[3] = FStatStruct(EStat::EPresence);
-	CharacterStats[4] = FStatStruct(EStat::EResistance);
+	CharacterStats = NewObject<UStatManager>();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -117,7 +108,7 @@ void AMyrrhageCharacter::SetupPlayerInputComponent(class UInputComponent* InputC
 	InputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 	InputComponent->BindAxis("MoveRight", this, &AMyrrhageCharacter::MoveRight);
 
-	InputComponent->BindAction("inventory", IE_Pressed, this, &AMyrrhageCharacter::OpenInventory);
+	InputComponent->BindAction("Inventory", IE_Pressed, this, &AMyrrhageCharacter::OpenInventory);
 
 	// Input for character attacking
 	InputComponent->BindAction("Attack1", IE_Pressed, this, &AMyrrhageCharacter::Attack);
@@ -158,16 +149,6 @@ void AMyrrhageCharacter::MoveRight(float Value)
 	AddMovementInput(FVector(1.0f, 0.0f, 0.0f), Value);
 }
 
-void AMyrrhageCharacter::Attack()
-{
-	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Cyan, Controller->GetFullName());
-}
-
-void AMyrrhageCharacter::StopAttack()
-{
-	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Black, Controller->GetFullName());
-}
-
 void AMyrrhageCharacter::TouchStarted(const ETouchIndex::Type FingerIndex, const FVector Location)
 {
 	// jump on any touch
@@ -181,69 +162,49 @@ void AMyrrhageCharacter::TouchStopped(const ETouchIndex::Type FingerIndex, const
 	StopAttack();
 }
 
-FString AMyrrhageCharacter::GetCharacterStats()
-{
-	FString stats;
-	stats += CharacterStats[0].GetEnumAsString() + " ";
-	stats += CharacterStats[1].GetEnumAsString() + " ";
-	stats += CharacterStats[2].GetEnumAsString() + " ";
-	stats += CharacterStats[3].GetEnumAsString() + " ";
-	stats += CharacterStats[4].GetEnumAsString();
-	return stats;
-}
-
 void AMyrrhageCharacter::OpenInventory()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Black, GetCharacterStats());
+#ifdef UE_BUILD_DEBUG
+	// TODO implement with GUI or HUD and put in Equip() method
 	if (CharacterInventory.Num() <= 0)
 		return;
 	// get the first item in the inventory and try to equip it
-	if (dynamic_cast<ABaseEquipment*>(CharacterInventory[0]))
+	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, CharacterStats->GetCharacterStats());
+	if (dynamic_cast<ABaseEquipment*>(CharacterInventory[num]))
 	{
-		ABaseEquipment* Equip = dynamic_cast<ABaseEquipment*>(CharacterInventory[0]);
-		if (CharacterEquipment->Equip(Equip)){
-			TArray<FStatStruct> Stats = Equip->GetStats();
-			for (int32 stat = 0; stat < Stats.Num(); stat++)
-			{
-				GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Black, Stats[stat].GetEnumAsString());
-				switch (Stats[stat].GetType())
-				{
-				case EStat::EAgility:
-					CharacterStats[0].AddToValue(Stats[stat].GetValue());
-					GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green, "Agility");
-					break;
-				case EStat::EKnowledge:
-					CharacterStats[1].AddToValue(Stats[stat].GetValue());
-					GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green, "Knowledge");
-					break;
-				case EStat::EMight:
-					CharacterStats[2].AddToValue(Stats[stat].GetValue());
-					GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green, "Might");
-					break;
-				case EStat::EPresence:
-					CharacterStats[3].AddToValue(Stats[stat].GetValue());
-					GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green, "Presence");
-					break;
-				case EStat::EResistance:
-					CharacterStats[4].AddToValue(Stats[stat].GetValue());
-					GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green, "Resistance");
-					break;
-				default:
-					break;
-				}
-
-				GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Blue, GetCharacterStats());
-			}
-		}
+		ABaseEquipment* Equip = dynamic_cast<ABaseEquipment*>(CharacterInventory[num]);
+		CharacterEquipment->Equip(CharacterStats, Equip);
+		num++;
+		if (num > 1)
+			num = 0;
 	}
-	
-	/*if (WidgetTemplate) {
-		if (!WidgetInstance) { WidgetInstance = CreateWidget(this->Controller, WidgetTemplate); }
-		if (!WidgetInstance->GetIsVisible())
-		{
-			WidgetInstance->AddToViewport();
-		}
+	/*if (dynamic_cast<ABaseEquipment*>(CharacterInventory[1]))
+	{
+		ABaseEquipment* Equip = dynamic_cast<ABaseEquipment*>(CharacterInventory[1]);
+		CharacterEquipment->Equip(CharacterStats, Equip);
 	}*/
+#endif
+}
+
+//////////////////////////////////////////////////////////////////////////
+// Player input attacks
+
+void AMyrrhageCharacter::Attack()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Cyan, Controller->GetFullName());
+}
+
+void AMyrrhageCharacter::StopAttack()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Black, Controller->GetFullName());
+}
+
+//////////////////////////////////////////////////////////////////////////
+// Player input attacks
+
+UStatManager* AMyrrhageCharacter::GetStatManager()
+{
+	return CharacterStats;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -267,17 +228,16 @@ void AMyrrhageCharacter::ReceiveHit(class UPrimitiveComponent* MyComp,
 	if (dynamic_cast<ABaseItem*>(Other))
 	{
 		PickUpItems(dynamic_cast<ABaseItem*>(Other));
+		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Cyan, Other->GetName());
 	}
 }
 
 void AMyrrhageCharacter::PickUpItems(class ABaseItem* Item)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, "PICK UP");
-
 	CharacterInventory.Add(Item);
 	if (dynamic_cast<ABaseEquipment*>(Item))
 	{
-		Item->OnPickUp_Implementation();
+		dynamic_cast<ABaseEquipment*>(Item)->OnPickUp_Implementation();
 	}
 #ifdef UE_BUILD_DEBUG
 	ABaseItem* CurItem = NULL;
@@ -286,7 +246,6 @@ void AMyrrhageCharacter::PickUpItems(class ABaseItem* Item)
 		CurItem = CharacterInventory[b];
 		if (!CurItem) continue;
 		if (!CurItem->IsValidLowLevel()) continue;
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, ((ABaseItem*)CurItem)->GetItemName());
 	}
 #endif
 }

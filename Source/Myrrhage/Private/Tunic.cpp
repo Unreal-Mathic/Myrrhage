@@ -1,9 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "MyrrhagePrivate.h"
-#include "Breastplate.h"
+#include "Tunic.h"
 
-ABreastplate::ABreastplate(const class FObjectInitializer& PCIP)
+ATunic::ATunic(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
 {
 	FStatStruct a = FStatStruct();
@@ -12,9 +12,9 @@ ABreastplate::ABreastplate(const class FObjectInitializer& PCIP)
 	RequiredStat = FStatStruct();
 
 	a.SetType(EStat::EMight);
-	a.SetValue((rand() % 10) + 1);
+	a.SetValue((rand() % 5) + 1);
 
-	b.SetType(EStat::EPresence);
+	b.SetType(EStat::EKnowledge);
 	b.SetValue((rand() % 10) + 1);
 
 	c.SetType(EStat::EResistance);
@@ -25,10 +25,10 @@ ABreastplate::ABreastplate(const class FObjectInitializer& PCIP)
 	Stats.Add(c);
 
 	SetEquippedOn(EEquippedOn::EBody);
-	
-	RequiredStat.SetType(EStat::EMight);
+
+	RequiredStat.SetType(EStat::EKnowledge);
 	RequiredStat.SetValue(8.0f);
-	Name = FString(TEXT("BAKA"));
+	Name = FString(TEXT("SHIMATA"));
 }
 
 

@@ -48,16 +48,13 @@ struct FStatStruct
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Items)
 	TEnumAsByte<EStat> StatType;
-
+	
 	void SetValue(float value){ StatValue = value; }
 	float GetValue(){ return StatValue; }
 	void SetType(TEnumAsByte<EStat> type){ StatType = type; }
 	TEnumAsByte<EStat> GetType(){ return StatType; }
-	void AddToValue(float value)
-	{ 
-		StatValue += value;
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green, FString::FromInt(StatValue));
-	}
+	void AddToValue(float value){ StatValue += value; }
+	void SubtractFromValue(float value){ StatValue -= value; }
 
 	FString GetEnumAsString()
 	{

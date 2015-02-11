@@ -10,118 +10,85 @@ UEquipmentManager::UEquipmentManager()
 
 void UEquipmentManager::InitializeCharacterEquipment()
 {
-	CharacterEquipment[0] = FEquipment(EEquippedOn::EHead);
-	CharacterEquipment[1] = FEquipment(EEquippedOn::EBody);
-	CharacterEquipment[2] = FEquipment(EEquippedOn::EHands);
-	CharacterEquipment[3] = FEquipment(EEquippedOn::ELegs);
-	CharacterEquipment[4] = FEquipment(EEquippedOn::EFeet);
-	CharacterEquipment[5] = FEquipment(EEquippedOn::ELeftHand);
-	CharacterEquipment[6] = FEquipment(EEquippedOn::ERightHand);
-
-	HeadArmor = &CharacterEquipment[0];
-	BodyArmor = &CharacterEquipment[1];
-	HandArmor = &CharacterEquipment[2];
-	LegArmor = &CharacterEquipment[3];
-	FeetArmor = &CharacterEquipment[4];
-	LeftHand = &CharacterEquipment[5];
-	RightHand = &CharacterEquipment[6];
+	HeadArmor = nullptr;
+	BodyArmor = nullptr;
+	HandArmor = nullptr;
+	LegArmor = nullptr;
+	FeetArmor = nullptr;
+	LeftHand = nullptr;
+	RightHand = nullptr;
 }
 
-bool UEquipmentManager::CheckEquipped(struct FEquipment* CurrentEquipped, class ABaseEquipment* Equipment)
+//TODO take the item out of the inventory
+bool UEquipmentManager::CheckEquipped(class UStatManager* CharacterStats, class ABaseEquipment* CurrentEquipped, class ABaseEquipment* Equipment)
 {
-	FString msg;
-	if (CurrentEquipped->Equipment == nullptr)
+	FString message = "";
+	if (CurrentEquipped == Equipment)
 	{
-		CurrentEquipped->Equipment = Equipment;
-		msg = "NEW EQUIPMENT";
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Black, msg);
-		return true;
-	}
-	else if (CurrentEquipped->Equipment == Equipment) 
-	{
-		msg = "SAME EQUIPMENT";
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Black, msg);
 		return false;
+	}
+	else if (CurrentEquipped == nullptr)
+	{
+		CharacterStats->AddStats(Equipment);
+		return true;
 	}
 	else if (Equipment->GetEquippedOn() == EEquippedOn::ETwoHanded)
 	{
-		if (RightHand->Equipment != nullptr && LeftHand->Equipment != nullptr)
+		if (RightHand != nullptr && LeftHand != nullptr)
 		{
-			Unequip(RightHand);
-			Unequip(LeftHand);
-			CurrentEquipped->Equipment = Equipment;
+			Unequip(CharacterStats, RightHand);
+			Unequip(CharacterStats, LeftHand);
+			CharacterStats->AddStats(Equipment);
 			return true;
 		}
 		return false;
 	}
-	else if (CurrentEquipped->Equipment != nullptr)
+	else if (CurrentEquipped != nullptr)
 	{
-		Unequip(CurrentEquipped);
-		CurrentEquipped->Equipment = Equipment;
-		msg = "REPLACING OLD EQUIPMENT";
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Black, msg);
+		Unequip(CharacterStats, CurrentEquipped);
+		CharacterStats->AddStats(Equipment);
 		return true;
-		//TODO take the item out of the inventory
 	}
-	else { return false; }
+	return false;
 }
 
-bool UEquipmentManager::Equip(class ABaseEquipment* Equipment)
+void UEquipmentManager::Equip(class UStatManager* CharacterStats, class ABaseEquipment* Equipment)
 {
 	// equip it in the right character slot
 	switch (Equipment->GetEquippedOn())
 	{
 	case EEquippedOn::EHead:
-		if (HeadArmor->Accepted == EEquippedOn::EHead)
-		{
-			return CheckEquipped(HeadArmor, Equipment);
-		}
-		return false;
+		if (CheckEquipped(CharacterStats, HeadArmor, Equipment)){ HeadArmor = Equipment; }
+		break;
 	case EEquippedOn::EBody:
-		if (BodyArmor->Accepted == EEquippedOn::EBody)
-		{
-			return CheckEquipped(BodyArmor, Equipment);
-		}
-		return false;
+		if (CheckEquipped(CharacterStats, BodyArmor, Equipment)){ BodyArmor = Equipment; }
+		break;
 	case EEquippedOn::EHands:
-		if (HandArmor->Accepted == EEquippedOn::EHands)
-		{
-			return CheckEquipped(HandArmor, Equipment);
-		}
-		return false;
+		if (CheckEquipped(CharacterStats, HandArmor, Equipment)){ HandArmor = Equipment; }
+		break;
 	case EEquippedOn::ELegs:
-		if (LegArmor->Accepted == EEquippedOn::ELegs)
-		{
-			return CheckEquipped(LegArmor, Equipment);
-		}
-		return false;
+		if (CheckEquipped(CharacterStats, LegArmor, Equipment)){ LegArmor = Equipment; }
+		break;
 	case EEquippedOn::EFeet:
-		if (FeetArmor->Accepted == EEquippedOn::EFeet)
-		{
-			return CheckEquipped(FeetArmor, Equipment);
-		}
-		return false;
+		if (CheckEquipped(CharacterStats, FeetArmor, Equipment)){ FeetArmor = Equipment; }
+		break;
 	case EEquippedOn::ERightHand:
-		if (RightHand->Accepted == EEquippedOn::ERightHand)
-		{
-			return CheckEquipped(RightHand, Equipment);
-		}
-		return false;
+		if (CheckEquipped(CharacterStats, RightHand, Equipment)){ RightHand = Equipment; }
+		break;
 	case EEquippedOn::ELeftHand:
-		if (LeftHand->Accepted == EEquippedOn::ELeftHand)
-		{
-			return CheckEquipped(LeftHand, Equipment);
-		}
-		return false;
+		if (CheckEquipped(CharacterStats, LeftHand, Equipment)){ LeftHand = Equipment; }
+		break;
 	case EEquippedOn::ETwoHanded:
-		return CheckEquipped(RightHand, Equipment);
+		if (CheckEquipped(CharacterStats, RightHand, Equipment)){ RightHand = Equipment; }
+		break;
 	default:
-		return false;
+		break;
 	}
 }
 
-void UEquipmentManager::Unequip(struct FEquipment* Current)
+void UEquipmentManager::Unequip(class UStatManager* CharacterStats, class ABaseEquipment* Current)
 {
 	//TODO return the item to the inventory
-	Current->Equipment = nullptr;
+	CharacterStats->RemoveStats(Current);
+	Current = nullptr;
 }

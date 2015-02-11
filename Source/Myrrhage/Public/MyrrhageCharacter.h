@@ -5,6 +5,7 @@
 #include "MyrrhageGlobals.h"
 #include "PaperCharacter.h"
 #include "EquipmentManager.h"
+#include "StatManager.h"
 #include "MyrrhageCharacter.generated.h"
 
 // This class is the default character for Myrrhage, and it is responsible for all
@@ -40,14 +41,15 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Myrrhage)
 	TArray<ABaseItem*> CharacterInventory;
 
-	// The character's innate abilities
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Myrrhage)
-	FStatStruct CharacterStats[5];
-
+	// Character armor and weapons equipped
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Myrrhage)
 	UEquipmentManager* CharacterEquipment;
 
-	void InitializeCharacterStats();
+	// Character's innate abilities
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Myrrhage)
+	UStatManager* CharacterStats;
+
+	int num = 0;
 
 	/** Called to choose the correct animation to play based on the character's movement state */
 	void UpdateAnimation();
@@ -67,6 +69,7 @@ protected:
 
 	virtual void Tick(float DeltaSeconds) override;
 
+	// Inventory methods
 	virtual void ReceiveHit(class UPrimitiveComponent*, class AActor*, class UPrimitiveComponent*, bool, FVector, FVector, FVector, const FHitResult&) override;
 	
 	void PickUpItems(class ABaseItem*);
@@ -74,12 +77,20 @@ protected:
 	void OpenInventory();
 
 	void Equip(class ABaseEquipment*);
+	// end of Inventory methods
 
+	// Abilities input
 	void Attack();
-
 	void StopAttack();
 
-	FString GetCharacterStats();
+	void QuickAttack();
+	void StopQuickAttack();
+
+	void SlowAttack();
+	void StopSlowAttack();
+
+
+	// end of abilities input
 
 public:
 	AMyrrhageCharacter(const FObjectInitializer& ObjectInitializer);
@@ -88,4 +99,6 @@ public:
 	FORCEINLINE class UCameraComponent* GetSideViewCameraComponent() const { return SideViewCameraComponent; }
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
+
+	UStatManager* GetStatManager();
 };

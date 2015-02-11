@@ -2,33 +2,12 @@
 
 #pragma once
 
-#include "BaseItem.h"
 #include "BaseEquipment.h"
+#include "StatManager.h"
 #include "InventoryWidget.h"
 
 #include "Object.h"
 #include "EquipmentManager.generated.h"
-
-#pragma region CHAR_STRUCTS
-USTRUCT(BlueprintType, Category = Equipment)
-struct FEquipment
-{
-	GENERATED_USTRUCT_BODY()
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	ABaseEquipment* Equipment;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TEnumAsByte<EEquippedOn> Accepted;
-
-	FEquipment(){}
-	FEquipment(TEnumAsByte<EEquippedOn> accepted)
-	{
-		Equipment = nullptr;
-		Accepted = accepted;
-	}
-};
-#pragma region CHAR_STRUCTS
 
 /**
  * 
@@ -39,30 +18,39 @@ class MYRRHAGE_API UEquipmentManager : public UObject
 	GENERATED_BODY()
 	
 protected:
-	// The array of equipment
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Myrrhage)
-	FEquipment CharacterEquipment[7];
+	ABaseEquipment* HeadArmor;
 
-	FEquipment* HeadArmor = nullptr;
-	FEquipment* BodyArmor = nullptr;
-	FEquipment* HandArmor = nullptr;
-	FEquipment* LegArmor = nullptr;
-	FEquipment* FeetArmor = nullptr;
-	FEquipment* LeftHand = nullptr;
-	FEquipment* RightHand = nullptr;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Myrrhage)
+	ABaseEquipment* BodyArmor;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Myrrhage)
+	ABaseEquipment* HandArmor;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Myrrhage)
+	ABaseEquipment* LegArmor;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Myrrhage)
+	ABaseEquipment* FeetArmor;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Myrrhage)
+	ABaseEquipment* LeftHand;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Myrrhage)
+	ABaseEquipment* RightHand;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = UI)
 	TSubclassOf<UUserWidget> WidgetTemplate;
 
 	UPROPERTY()
 	UUserWidget* WidgetInstance;
+
+	void InitializeCharacterEquipment();
 	
 public:
 	UEquipmentManager();
 
-	bool CheckEquipped(struct FEquipment*, class ABaseEquipment*);
-	bool Equip(class ABaseEquipment*);
-	void Unequip(struct FEquipment*);
-
-	void InitializeCharacterEquipment();
+	bool CheckEquipped(class UStatManager*, class ABaseEquipment*, class ABaseEquipment*);
+	void Equip(class UStatManager*, class ABaseEquipment*);
+	void Unequip(class UStatManager*, class ABaseEquipment*);
 };
