@@ -82,7 +82,9 @@ AMyrrhageCharacter::AMyrrhageCharacter(const FObjectInitializer& ObjectInitializ
 	
 	CharacterEquipment = NewObject<UEquipmentManager>();
 	CharacterStats = NewObject<UStatManager>();
-	CharacterClass = EClass::ECyborg;
+	CharacterAttacks = NewObject<UAttackManager>();
+	CharacterClass = EClass::EHacker;
+	CharacterHandedness = EHandedness::ELeftHanded;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -111,18 +113,21 @@ void AMyrrhageCharacter::SetupPlayerInputComponent(class UInputComponent* InputC
 
 	InputComponent->BindAction("Inventory", IE_Pressed, this, &AMyrrhageCharacter::OpenInventory);
 
+	// Debuggin purposes
+	InputComponent->BindAction("Equip", IE_Pressed, this, &AMyrrhageCharacter::Equip);
+
 	// Input for character attacking
-	InputComponent->BindAction("Attack1", IE_Pressed, this, &AMyrrhageCharacter::Attack);
-	InputComponent->BindAction("Attack1", IE_Released, this, &AMyrrhageCharacter::StopAttack);
+	InputComponent->BindAction("Attack1", IE_Pressed, this, &AMyrrhageCharacter::BaseAttack);
+	InputComponent->BindAction("Attack1", IE_Released, this, &AMyrrhageCharacter::StopBaseAttack);
 
-	InputComponent->BindAction("Attack2", IE_Pressed, this, &AMyrrhageCharacter::Attack);
-	InputComponent->BindAction("Attack2", IE_Released, this, &AMyrrhageCharacter::StopAttack);
+	InputComponent->BindAction("Attack2", IE_Pressed, this, &AMyrrhageCharacter::WeakAttack);
+	InputComponent->BindAction("Attack2", IE_Released, this, &AMyrrhageCharacter::StopWeakAttack);
 
-	InputComponent->BindAction("Attack3", IE_Pressed, this, &AMyrrhageCharacter::Attack);
-	InputComponent->BindAction("Attack3", IE_Released, this, &AMyrrhageCharacter::StopAttack);
+	InputComponent->BindAction("Attack3", IE_Pressed, this, &AMyrrhageCharacter::StrongAttack);
+	InputComponent->BindAction("Attack3", IE_Released, this, &AMyrrhageCharacter::StopStrongAttack);
 
-	InputComponent->BindAction("Attack4", IE_Pressed, this, &AMyrrhageCharacter::Attack);
-	InputComponent->BindAction("Attack4", IE_Released, this, &AMyrrhageCharacter::StopAttack);
+	InputComponent->BindAction("Attack4", IE_Pressed, this, &AMyrrhageCharacter::UltimateAttack);
+	InputComponent->BindAction("Attack4", IE_Released, this, &AMyrrhageCharacter::StopUltimateAttack);
 
 	InputComponent->BindTouch(IE_Pressed, this, &AMyrrhageCharacter::TouchStarted);
 	InputComponent->BindTouch(IE_Released, this, &AMyrrhageCharacter::TouchStopped);
@@ -154,18 +159,81 @@ void AMyrrhageCharacter::TouchStarted(const ETouchIndex::Type FingerIndex, const
 {
 	// jump on any touch
 	Jump();
-	Attack();
+	// attacks
+	BaseAttack();
+	WeakAttack();
+	StrongAttack();
+	UltimateAttack();
 }
 
 void AMyrrhageCharacter::TouchStopped(const ETouchIndex::Type FingerIndex, const FVector Location)
 {
 	StopJumping();
-	StopAttack();
+
+	StopBaseAttack();
+	StopWeakAttack();
+	StopStrongAttack();
+	StopUltimateAttack();
 }
 
 void AMyrrhageCharacter::OpenInventory()
 {
-#ifdef UE_BUILD_DEBUG
+	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, "Inventory GUI not implemented yet.");
+}
+
+//////////////////////////////////////////////////////////////////////////
+// Player input attacks
+
+void AMyrrhageCharacter::BaseAttack()
+{
+	CharacterAttacks->Attack(CharacterEquipment, EAttackType::EBaseAttack, CharacterClass);
+}
+
+void AMyrrhageCharacter::StopBaseAttack()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Black, "StopBaseAttack");
+}
+
+void AMyrrhageCharacter::WeakAttack()
+{
+	CharacterAttacks->Attack(CharacterEquipment, EAttackType::EWeakAttack, CharacterClass);
+}
+
+void AMyrrhageCharacter::StopWeakAttack()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Black, "StopWeakAttack");
+}
+
+void AMyrrhageCharacter::StrongAttack()
+{
+	CharacterAttacks->Attack(CharacterEquipment, EAttackType::EStrongAttack, CharacterClass);
+}
+
+void AMyrrhageCharacter::StopStrongAttack()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Black, "StopStrongAttack");
+}
+
+void AMyrrhageCharacter::UltimateAttack()
+{
+	CharacterAttacks->Attack(CharacterEquipment, EAttackType::EUltimateAttack, CharacterClass);
+}
+
+void AMyrrhageCharacter::StopUltimateAttack()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Black, "StopUltimateAttack");
+}
+
+//////////////////////////////////////////////////////////////////////////
+// Player stats/equipment
+
+UStatManager* AMyrrhageCharacter::GetStatManager()
+{
+	return CharacterStats;
+}
+
+void AMyrrhageCharacter::Equip()
+{
 	// TODO implement with GUI or HUD and put in Equip() method
 	if (CharacterInventory.Num() <= 0)
 		return;
@@ -175,36 +243,14 @@ void AMyrrhageCharacter::OpenInventory()
 	{
 		ABaseEquipment* Equip = dynamic_cast<ABaseEquipment*>(CharacterInventory[num]);
 		if (CharacterClass == Equip->GetClassType())
-		{ 
+		{
 			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, Equip->GetItemName());
-			CharacterEquipment->Equip(CharacterStats, Equip); 
+			CharacterEquipment->Equip(CharacterStats, Equip, CharacterHandedness);
 		}
 
 		num++;
 		if (num >= CharacterInventory.Num()){ num = 0; }
 	}
-#endif
-}
-
-//////////////////////////////////////////////////////////////////////////
-// Player input attacks
-
-void AMyrrhageCharacter::Attack()
-{
-	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Cyan, Controller->GetFullName());
-}
-
-void AMyrrhageCharacter::StopAttack()
-{
-	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Black, Controller->GetFullName());
-}
-
-//////////////////////////////////////////////////////////////////////////
-// Player input attacks
-
-UStatManager* AMyrrhageCharacter::GetStatManager()
-{
-	return CharacterStats;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -248,9 +294,4 @@ void AMyrrhageCharacter::PickUpItems(class ABaseItem* Item)
 		if (!CurItem->IsValidLowLevel()) continue;
 	}
 #endif
-}
-
-void AMyrrhageCharacter::Equip(class ABaseEquipment* Equipment)
-{
-
 }

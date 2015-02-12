@@ -17,11 +17,8 @@ protected:
 	ABaseWeapon(const class FObjectInitializer& PCIP);
 
 public:
-	void FirstAbility();
-
-	void SecondAbility();
-
-	void ThirdAbility();
-
-	void FourthAbility();
+	void BaseAttack();
+	void WeakAttack();
+	void StrongAttack();
+	void UltimateAttack();
 };

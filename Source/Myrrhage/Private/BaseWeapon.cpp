@@ -8,3 +8,23 @@ ABaseWeapon::ABaseWeapon(const class FObjectInitializer& PCIP)
 {
 	ItemType = EItem::EWeapon;
 }
+
+void ABaseWeapon::BaseAttack()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Cyan, "BaseAttack");
+}
+
+void ABaseWeapon::WeakAttack()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Cyan, "WeakAttack");
+}
+
+void ABaseWeapon::StrongAttack()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Cyan, "StrongAttack");
+}
+
+void ABaseWeapon::UltimateAttack()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Cyan, "UltimateAttack");
+}
