@@ -6,7 +6,6 @@
 #include "PaperCharacter.h"
 #include "EquipmentManager.h"
 #include "StatManager.h"
-#include "AttackManager.h"
 #include "MyrrhageCharacter.generated.h"
 
 // This class is the default character for Myrrhage, and it is responsible for all
@@ -51,16 +50,8 @@ protected:
 	UStatManager* CharacterStats;
 
 	// Character's innate abilities
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Myrrhage)
-	UAttackManager* CharacterAttacks;
-
-	// Character's class type
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Myrrhage)
 	TEnumAsByte<EClass> CharacterClass;
-
-	// Character's preferred hand
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Myrrhage)
-	TEnumAsByte<EHandedness> CharacterHandedness;
 
 	int num = 0;
 
@@ -89,21 +80,19 @@ protected:
 
 	void OpenInventory();
 
-	void Equip();
+	void Equip(class ABaseEquipment*);
 	// end of Inventory methods
 
 	// Abilities input
-	void BaseAttack();
-	void StopBaseAttack();
+	void Attack();
+	void StopAttack();
 
-	void WeakAttack();
-	void StopWeakAttack();
+	void QuickAttack();
+	void StopQuickAttack();
 
-	void StrongAttack();
-	void StopStrongAttack();
+	void SlowAttack();
+	void StopSlowAttack();
 
-	void UltimateAttack();
-	void StopUltimateAttack();
 
 	// end of abilities input
 

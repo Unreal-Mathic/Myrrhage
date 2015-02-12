@@ -3,7 +3,6 @@
 #pragma once
 
 #include "BaseEquipment.h"
-#include "BaseWeapon.h"
 #include "StatManager.h"
 #include "InventoryWidget.h"
 
@@ -52,8 +51,6 @@ public:
 	UEquipmentManager();
 
 	void CheckEquipped(class UStatManager*, class ABaseEquipment**, class ABaseEquipment*);
-	void Equip(class UStatManager*, class ABaseEquipment*, TEnumAsByte<EHandedness>);
+	void Equip(class UStatManager*, class ABaseEquipment*);
 	void Unequip(class UStatManager*, class ABaseEquipment*);
-	bool HasWeapon();
-	ABaseWeapon* GetWeapon();
 };

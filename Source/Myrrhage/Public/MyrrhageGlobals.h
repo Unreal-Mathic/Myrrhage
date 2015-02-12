@@ -48,25 +48,6 @@ enum class EClass : uint8
 	EInfantry		UMETA(DisplayName = "Infantry"),
 	EPsion			UMETA(DisplayName = "Psion")
 };
-
-UENUM(BlueprintType, Category = Character)
-enum class EHandedness : uint8
-{
-	EUnknown = 0,
-	ELeftHanded			UMETA(DisplayName = "Left-handed"),
-	ERightHanded		UMETA(DisplayName = "Right-handed"),
-	EAmbidextrous		UMETA(DisplayName = "Ambidextrous")
-};
-
-UENUM(BlueprintType, Category = Character)
-enum class EAttackType : uint8
-{
-	EUnknown = 0,
-	EBaseAttack			UMETA(DisplayName = "Base Attack"),
-	EWeakAttack			UMETA(DisplayName = "Weak Attack"),
-	EStrongAttack		UMETA(DisplayName = "Strong Attack"),
-	EUltimateAttack		UMETA(DisplayName = "Ultimate Attack")
-};
 #pragma endregion ENUMS
 
 #pragma region STRUCTS
