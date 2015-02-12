@@ -72,11 +72,7 @@ void UEquipmentManager::Equip(class UStatManager* CharacterStats, class ABaseEqu
 		CheckEquipped(CharacterStats, &FeetArmor, Equipment);
 		break;
 	case EEquippedOn::ERightHand:
-		CheckEquipped(CharacterStats, &RightHand, Equipment);
-		break;
 	case EEquippedOn::ELeftHand:
-		CheckEquipped(CharacterStats, &LeftHand, Equipment);
-		break;
 	case EEquippedOn::ETwoHanded:
 		if (Handedness == EHandedness::ELeftHanded)
 		{
