@@ -2,6 +2,7 @@
 
 #include "MyrrhagePrivate.h"
 #include "EquipmentManager.h"
+#include <time.h>       /* time */
 
 UEquipmentManager::UEquipmentManager()
 {
@@ -50,7 +51,7 @@ void UEquipmentManager::CheckEquipped(class UStatManager* CharacterStats, class 
 	}
 }
 
-void UEquipmentManager::Equip(class UStatManager* CharacterStats, class ABaseEquipment* Equipment)
+void UEquipmentManager::Equip(class UStatManager* CharacterStats, class ABaseEquipment* Equipment, TEnumAsByte<EHandedness> Handedness)
 {
 	// equip it in the right character slot
 	switch (Equipment->GetEquippedOn())
@@ -77,7 +78,24 @@ void UEquipmentManager::Equip(class UStatManager* CharacterStats, class ABaseEqu
 		CheckEquipped(CharacterStats, &LeftHand, Equipment);
 		break;
 	case EEquippedOn::ETwoHanded:
-		CheckEquipped(CharacterStats, &RightHand, Equipment);
+		if (Handedness == EHandedness::ELeftHanded)
+		{
+			CheckEquipped(CharacterStats, &LeftHand, Equipment);
+		}
+		else if (Handedness == EHandedness::ERightHanded)
+		{
+			CheckEquipped(CharacterStats, &RightHand, Equipment);
+		}
+		else if (Handedness == EHandedness::EAmbidextrous)
+		{
+			/* initialize random seed: */
+			srand(time(NULL));
+			int hand = rand() % 2 + 1;
+			if (hand == 1)
+				CheckEquipped(CharacterStats, &RightHand, Equipment);
+			else
+				CheckEquipped(CharacterStats, &LeftHand, Equipment);
+		}
 		break;
 	default:
 		break;
@@ -89,4 +107,27 @@ void UEquipmentManager::Unequip(class UStatManager* CharacterStats, class ABaseE
 	//TODO return the item to the inventory
 	CharacterStats->RemoveStats(Current);
 	Current = nullptr;
+}
+
+bool UEquipmentManager::HasWeapon()
+{
+	if (LeftHand == nullptr && RightHand == nullptr)
+		return false;
+	return true;
+}
+
+ABaseWeapon* UEquipmentManager::GetWeapon()
+{
+	if (LeftHand != nullptr)
+	{
+		return dynamic_cast<ABaseWeapon*>(LeftHand);
+	}
+	else if (RightHand != nullptr)
+	{
+		return dynamic_cast<ABaseWeapon*>(RightHand);
+	}
+	else
+	{
+		return nullptr;
+	}
 }
