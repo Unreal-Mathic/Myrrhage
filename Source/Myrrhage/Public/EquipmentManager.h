@@ -50,7 +50,7 @@ protected:
 public:
 	UEquipmentManager();
 
-	bool CheckEquipped(class UStatManager*, class ABaseEquipment*, class ABaseEquipment*);
+	void CheckEquipped(class UStatManager*, class ABaseEquipment**, class ABaseEquipment*);
 	void Equip(class UStatManager*, class ABaseEquipment*);
 	void Unequip(class UStatManager*, class ABaseEquipment*);
 };

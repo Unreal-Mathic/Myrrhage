@@ -9,8 +9,7 @@ ATunic::ATunic(const class FObjectInitializer& PCIP)
 	FStatStruct a = FStatStruct();
 	FStatStruct b = FStatStruct();
 	FStatStruct c = FStatStruct();
-	RequiredStat = FStatStruct();
-
+	
 	a.SetType(EStat::EMight);
 	a.SetValue((rand() % 5) + 1);
 
@@ -24,10 +23,13 @@ ATunic::ATunic(const class FObjectInitializer& PCIP)
 	Stats.Add(b);
 	Stats.Add(c);
 
-	SetEquippedOn(EEquippedOn::EBody);
+	EquippedOn = EEquippedOn::EBody;
+	ClassType = EClass::EHacker;
 
+	RequiredStat = FStatStruct();
 	RequiredStat.SetType(EStat::EKnowledge);
 	RequiredStat.SetValue(8.0f);
+
 	Name = FString(TEXT("SHIMATA"));
 }
 

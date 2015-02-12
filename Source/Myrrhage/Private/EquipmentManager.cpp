@@ -20,17 +20,16 @@ void UEquipmentManager::InitializeCharacterEquipment()
 }
 
 //TODO take the item out of the inventory
-bool UEquipmentManager::CheckEquipped(class UStatManager* CharacterStats, class ABaseEquipment* CurrentEquipped, class ABaseEquipment* Equipment)
+void UEquipmentManager::CheckEquipped(class UStatManager* CharacterStats, class ABaseEquipment** CurrentEquipped, class ABaseEquipment* Equipment)
 {
-	FString message = "";
-	if (CurrentEquipped == Equipment)
+	if (*CurrentEquipped == Equipment)
 	{
-		return false;
+		return;
 	}
-	else if (CurrentEquipped == nullptr)
+	else if (*CurrentEquipped == nullptr)
 	{
+		*CurrentEquipped = Equipment;
 		CharacterStats->AddStats(Equipment);
-		return true;
 	}
 	else if (Equipment->GetEquippedOn() == EEquippedOn::ETwoHanded)
 	{
@@ -38,18 +37,17 @@ bool UEquipmentManager::CheckEquipped(class UStatManager* CharacterStats, class 
 		{
 			Unequip(CharacterStats, RightHand);
 			Unequip(CharacterStats, LeftHand);
+			*CurrentEquipped = Equipment;
 			CharacterStats->AddStats(Equipment);
-			return true;
 		}
-		return false;
+		return;
 	}
-	else if (CurrentEquipped != nullptr)
+	else if (*CurrentEquipped != nullptr)
 	{
-		Unequip(CharacterStats, CurrentEquipped);
+		Unequip(CharacterStats, *CurrentEquipped);
+		*CurrentEquipped = Equipment;
 		CharacterStats->AddStats(Equipment);
-		return true;
 	}
-	return false;
 }
 
 void UEquipmentManager::Equip(class UStatManager* CharacterStats, class ABaseEquipment* Equipment)
@@ -58,28 +56,28 @@ void UEquipmentManager::Equip(class UStatManager* CharacterStats, class ABaseEqu
 	switch (Equipment->GetEquippedOn())
 	{
 	case EEquippedOn::EHead:
-		if (CheckEquipped(CharacterStats, HeadArmor, Equipment)){ HeadArmor = Equipment; }
+		CheckEquipped(CharacterStats, &HeadArmor, Equipment);
 		break;
 	case EEquippedOn::EBody:
-		if (CheckEquipped(CharacterStats, BodyArmor, Equipment)){ BodyArmor = Equipment; }
+		CheckEquipped(CharacterStats, &BodyArmor, Equipment);
 		break;
 	case EEquippedOn::EHands:
-		if (CheckEquipped(CharacterStats, HandArmor, Equipment)){ HandArmor = Equipment; }
+		CheckEquipped(CharacterStats, &HandArmor, Equipment);
 		break;
 	case EEquippedOn::ELegs:
-		if (CheckEquipped(CharacterStats, LegArmor, Equipment)){ LegArmor = Equipment; }
+		CheckEquipped(CharacterStats, &LegArmor, Equipment);
 		break;
 	case EEquippedOn::EFeet:
-		if (CheckEquipped(CharacterStats, FeetArmor, Equipment)){ FeetArmor = Equipment; }
+		CheckEquipped(CharacterStats, &FeetArmor, Equipment);
 		break;
 	case EEquippedOn::ERightHand:
-		if (CheckEquipped(CharacterStats, RightHand, Equipment)){ RightHand = Equipment; }
+		CheckEquipped(CharacterStats, &RightHand, Equipment);
 		break;
 	case EEquippedOn::ELeftHand:
-		if (CheckEquipped(CharacterStats, LeftHand, Equipment)){ LeftHand = Equipment; }
+		CheckEquipped(CharacterStats, &LeftHand, Equipment);
 		break;
 	case EEquippedOn::ETwoHanded:
-		if (CheckEquipped(CharacterStats, RightHand, Equipment)){ RightHand = Equipment; }
+		CheckEquipped(CharacterStats, &RightHand, Equipment);
 		break;
 	default:
 		break;

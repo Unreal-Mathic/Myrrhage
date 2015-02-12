@@ -9,7 +9,6 @@ ABreastplate::ABreastplate(const class FObjectInitializer& PCIP)
 	FStatStruct a = FStatStruct();
 	FStatStruct b = FStatStruct();
 	FStatStruct c = FStatStruct();
-	RequiredStat = FStatStruct();
 
 	a.SetType(EStat::EMight);
 	a.SetValue((rand() % 10) + 1);
@@ -24,10 +23,13 @@ ABreastplate::ABreastplate(const class FObjectInitializer& PCIP)
 	Stats.Add(b);
 	Stats.Add(c);
 
-	SetEquippedOn(EEquippedOn::EBody);
+	EquippedOn = EEquippedOn::EBody;
+	ClassType = EClass::ECyborg;
 	
+	RequiredStat = FStatStruct();
 	RequiredStat.SetType(EStat::EMight);
 	RequiredStat.SetValue(8.0f);
+
 	Name = FString(TEXT("BAKA"));
 }
 

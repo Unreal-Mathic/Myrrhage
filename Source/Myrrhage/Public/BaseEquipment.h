@@ -15,20 +15,28 @@ class MYRRHAGE_API ABaseEquipment : public ABaseItem
 	GENERATED_BODY()
 
 protected:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Item)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
 	TArray<FStatStruct> Stats;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Item)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
 	FStatStruct RequiredStat;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Item)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
 	TEnumAsByte<EEquippedOn> EquippedOn;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
+	TEnumAsByte<EClass> ClassType;
 public:
 	ABaseEquipment(const class FObjectInitializer& PCIP);
 
+	TArray<FStatStruct> GetStats();
+
+	FStatStruct GetRequiredStat();
+
 	void SetEquippedOn(EEquippedOn);
 	TEnumAsByte<EEquippedOn> GetEquippedOn();
-	TArray<FStatStruct> GetStats();
+	
+	TEnumAsByte<EClass> GetClassType();
 
 	void OnPickUp_Implementation() override;
 };

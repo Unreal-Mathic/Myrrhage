@@ -10,6 +10,11 @@ TArray<FStatStruct> ABaseEquipment::GetStats()
 	return Stats;
 }
 
+FStatStruct ABaseEquipment::GetRequiredStat()
+{
+	return RequiredStat;
+}
+
 void ABaseEquipment::SetEquippedOn(EEquippedOn EquippedOn)
 {
 	this->EquippedOn = EquippedOn;
@@ -18,6 +23,11 @@ void ABaseEquipment::SetEquippedOn(EEquippedOn EquippedOn)
 TEnumAsByte<EEquippedOn> ABaseEquipment::GetEquippedOn()
 {
 	return EquippedOn;
+}
+
+TEnumAsByte<EClass> ABaseEquipment::GetClassType()
+{
+	return ClassType;
 }
 
 void ABaseEquipment::OnPickUp_Implementation()

@@ -8,6 +8,7 @@
 UENUM(BlueprintType, Category = Items)
 enum class EItem : uint8
 {
+	EUnknown = 0,
 	EArmor	UMETA(DisplayName = "Armor"),
 	EWeapon	UMETA(DisplayName = "Weapon"),
 	EPotion	UMETA(DisplayName = "Potion")
@@ -16,6 +17,7 @@ enum class EItem : uint8
 UENUM(BlueprintType, Category = Stats)
 enum class EStat : uint8
 {
+	EUnknown = 0,
 	EMight			UMETA(DisplayName = "Might"),
 	EKnowledge		UMETA(DisplayName = "Knowledge"),
 	EPresence		UMETA(DisplayName = "Presence"),
@@ -26,6 +28,7 @@ enum class EStat : uint8
 UENUM(BlueprintType, Category = Equipment)
 enum class EEquippedOn : uint8
 {
+	EUnknown = 0,
 	EHead			UMETA(DisplayName = "Head Armor"),
 	EBody			UMETA(DisplayName = "Body Armor"),
 	ELegs			UMETA(DisplayName = "Leg Armor"),
@@ -34,6 +37,16 @@ enum class EEquippedOn : uint8
 	ELeftHand		UMETA(DisplayName = "Left Hand"),
 	ERightHand		UMETA(DisplayName = "Right Hand"),
 	ETwoHanded		UMETA(DisplayName = "Two-handed")
+};
+
+UENUM(BlueprintType, Category = Character)
+enum class EClass : uint8
+{
+	EUnknown = 0,
+	ECyborg			UMETA(DisplayName = "Cyborg"),
+	EHacker			UMETA(DisplayName = "Hacker"),
+	EInfantry		UMETA(DisplayName = "Infantry"),
+	EPsion			UMETA(DisplayName = "Psion")
 };
 #pragma endregion ENUMS
 

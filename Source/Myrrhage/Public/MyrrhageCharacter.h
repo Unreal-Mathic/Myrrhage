@@ -49,6 +49,10 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Myrrhage)
 	UStatManager* CharacterStats;
 
+	// Character's innate abilities
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Myrrhage)
+	TEnumAsByte<EClass> CharacterClass;
+
 	int num = 0;
 
 	/** Called to choose the correct animation to play based on the character's movement state */

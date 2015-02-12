@@ -82,6 +82,7 @@ AMyrrhageCharacter::AMyrrhageCharacter(const FObjectInitializer& ObjectInitializ
 	
 	CharacterEquipment = NewObject<UEquipmentManager>();
 	CharacterStats = NewObject<UStatManager>();
+	CharacterClass = EClass::ECyborg;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -173,16 +174,15 @@ void AMyrrhageCharacter::OpenInventory()
 	if (dynamic_cast<ABaseEquipment*>(CharacterInventory[num]))
 	{
 		ABaseEquipment* Equip = dynamic_cast<ABaseEquipment*>(CharacterInventory[num]);
-		CharacterEquipment->Equip(CharacterStats, Equip);
+		if (CharacterClass == Equip->GetClassType())
+		{ 
+			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, Equip->GetItemName());
+			CharacterEquipment->Equip(CharacterStats, Equip); 
+		}
+
 		num++;
-		if (num > 1)
-			num = 0;
+		if (num >= CharacterInventory.Num()){ num = 0; }
 	}
-	/*if (dynamic_cast<ABaseEquipment*>(CharacterInventory[1]))
-	{
-		ABaseEquipment* Equip = dynamic_cast<ABaseEquipment*>(CharacterInventory[1]);
-		CharacterEquipment->Equip(CharacterStats, Equip);
-	}*/
 #endif
 }
 
