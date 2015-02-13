@@ -38,6 +38,21 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animations)
 	class UPaperFlipbook* IdleAnimation;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animations)
+	class UPaperFlipbook* BaseAttackAnimation;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animations)
+	class UPaperFlipbook* WeakAttackAnimation;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animations)
+	class UPaperFlipbook* StrongAttackAnimation;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animations)
+	class UPaperFlipbook* UltimateAttackAnimation;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animations)
+	class UPaperFlipbook* RangeAttackAnimation;
+
 	// Picked up items go in the CharacterInventory
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Myrrhage)
 	TArray<ABaseItem*> CharacterInventory;
@@ -92,19 +107,16 @@ protected:
 	void Equip();
 	// end of Inventory methods
 
+	bool IsAttacking;
+
 	// Abilities input
+	void ExecuteAttack(UPaperFlipbook*);
+
 	void BaseAttack();
-	void StopBaseAttack();
-
 	void WeakAttack();
-	void StopWeakAttack();
-
 	void StrongAttack();
-	void StopStrongAttack();
-
 	void UltimateAttack();
-	void StopUltimateAttack();
-
+	void StopAttack();
 	// end of abilities input
 
 public:

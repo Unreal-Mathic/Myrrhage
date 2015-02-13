@@ -17,9 +17,19 @@ AMyrrhageCharacter::AMyrrhageCharacter(const FObjectInitializer& ObjectInitializ
 	{
 		ConstructorHelpers::FObjectFinderOptional<UPaperFlipbook> RunningAnimationAsset;
 		ConstructorHelpers::FObjectFinderOptional<UPaperFlipbook> IdleAnimationAsset;
+		ConstructorHelpers::FObjectFinderOptional<UPaperFlipbook> BaseAttackAnimationAsset;
+		ConstructorHelpers::FObjectFinderOptional<UPaperFlipbook> WeakAttackAnimationAsset;
+		ConstructorHelpers::FObjectFinderOptional<UPaperFlipbook> StrongAttackAnimationAsset;
+		ConstructorHelpers::FObjectFinderOptional<UPaperFlipbook> UltimateAttackAnimationAsset;
+		ConstructorHelpers::FObjectFinderOptional<UPaperFlipbook> RangeAttackAnimationAsset;
 		FConstructorStatics()
 			: RunningAnimationAsset(TEXT("/Game/Sprites/RunningAnimation.RunningAnimation"))
 			, IdleAnimationAsset(TEXT("/Game/Sprites/IdleAnimation.IdleAnimation"))
+			, BaseAttackAnimationAsset(TEXT("/Game/Sprites/FinnBaseAttack.FinnBaseAttack"))
+			, WeakAttackAnimationAsset(TEXT("/Game/Sprites/FinnWeakAttack.FinnWeakAttack"))
+			, StrongAttackAnimationAsset(TEXT("/Game/Sprites/FinnStrongAttack.FinnStrongAttack"))
+			, UltimateAttackAnimationAsset(TEXT("/Game/Sprites/FinnUltimate.FinnUltimate"))
+			, RangeAttackAnimationAsset(TEXT("/Game/Sprites/FinnRange.FinnRange"))
 		{
 		}
 	};
@@ -29,7 +39,12 @@ AMyrrhageCharacter::AMyrrhageCharacter(const FObjectInitializer& ObjectInitializ
 
 	RunningAnimation = ConstructorStatics.RunningAnimationAsset.Get();
 	IdleAnimation = ConstructorStatics.IdleAnimationAsset.Get();
-	GetSprite()->SetFlipbook(IdleAnimation);
+	BaseAttackAnimation = ConstructorStatics.BaseAttackAnimationAsset.Get();
+	WeakAttackAnimation = ConstructorStatics.WeakAttackAnimationAsset.Get();
+	StrongAttackAnimation = ConstructorStatics.StrongAttackAnimationAsset.Get();
+	UltimateAttackAnimation = ConstructorStatics.UltimateAttackAnimationAsset.Get();
+	RangeAttackAnimation = ConstructorStatics.RangeAttackAnimationAsset.Get();
+	GetSprite()->SetFlipbook(BaseAttackAnimation);
 
 	// Use only Yaw from the controller and ignore the rest of the rotation.
 	bUseControllerRotationPitch = false;
@@ -92,6 +107,9 @@ AMyrrhageCharacter::AMyrrhageCharacter(const FObjectInitializer& ObjectInitializ
 
 void AMyrrhageCharacter::UpdateAnimation()
 {
+	if (IsAttacking)
+		return;
+	//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Black, "NotAttacking");
 	const FVector PlayerVelocity = GetVelocity();
 	const float PlayerSpeed = PlayerVelocity.Size();
 
@@ -113,21 +131,14 @@ void AMyrrhageCharacter::SetupPlayerInputComponent(class UInputComponent* InputC
 
 	InputComponent->BindAction("Inventory", IE_Pressed, this, &AMyrrhageCharacter::OpenInventory);
 
-	// Debuggin purposes
+	// Debugging purposes
 	InputComponent->BindAction("Equip", IE_Pressed, this, &AMyrrhageCharacter::Equip);
 
 	// Input for character attacking
 	InputComponent->BindAction("Attack1", IE_Pressed, this, &AMyrrhageCharacter::BaseAttack);
-	InputComponent->BindAction("Attack1", IE_Released, this, &AMyrrhageCharacter::StopBaseAttack);
-
 	InputComponent->BindAction("Attack2", IE_Pressed, this, &AMyrrhageCharacter::WeakAttack);
-	InputComponent->BindAction("Attack2", IE_Released, this, &AMyrrhageCharacter::StopWeakAttack);
-
 	InputComponent->BindAction("Attack3", IE_Pressed, this, &AMyrrhageCharacter::StrongAttack);
-	InputComponent->BindAction("Attack3", IE_Released, this, &AMyrrhageCharacter::StopStrongAttack);
-
 	InputComponent->BindAction("Attack4", IE_Pressed, this, &AMyrrhageCharacter::UltimateAttack);
-	InputComponent->BindAction("Attack4", IE_Released, this, &AMyrrhageCharacter::StopUltimateAttack);
 
 	InputComponent->BindTouch(IE_Pressed, this, &AMyrrhageCharacter::TouchStarted);
 	InputComponent->BindTouch(IE_Released, this, &AMyrrhageCharacter::TouchStopped);
@@ -169,11 +180,6 @@ void AMyrrhageCharacter::TouchStarted(const ETouchIndex::Type FingerIndex, const
 void AMyrrhageCharacter::TouchStopped(const ETouchIndex::Type FingerIndex, const FVector Location)
 {
 	StopJumping();
-
-	StopBaseAttack();
-	StopWeakAttack();
-	StopStrongAttack();
-	StopUltimateAttack();
 }
 
 void AMyrrhageCharacter::OpenInventory()
@@ -184,44 +190,40 @@ void AMyrrhageCharacter::OpenInventory()
 //////////////////////////////////////////////////////////////////////////
 // Player input attacks
 
-void AMyrrhageCharacter::BaseAttack()
+void AMyrrhageCharacter::ExecuteAttack(UPaperFlipbook* Animation)
 {
-	CharacterAttacks->Attack(CharacterEquipment, EAttackType::EBaseAttack, CharacterClass);
+	if (!IsAttacking)
+	{
+		IsAttacking = true;
+		GetSprite()->SetFlipbook(Animation);
+		GetWorldTimerManager().SetTimer(this, &AMyrrhageCharacter::StopAttack, Animation->GetTotalDuration(), false, Animation->GetTotalDuration());
+		CharacterAttacks->Attack(CharacterEquipment, EAttackType::EBaseAttack, CharacterClass);
+	}
 }
 
-void AMyrrhageCharacter::StopBaseAttack()
+void AMyrrhageCharacter::BaseAttack()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Black, "StopBaseAttack");
+	ExecuteAttack(BaseAttackAnimation);
 }
 
 void AMyrrhageCharacter::WeakAttack()
 {
-	CharacterAttacks->Attack(CharacterEquipment, EAttackType::EWeakAttack, CharacterClass);
-}
-
-void AMyrrhageCharacter::StopWeakAttack()
-{
-	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Black, "StopWeakAttack");
+	ExecuteAttack(WeakAttackAnimation);
 }
 
 void AMyrrhageCharacter::StrongAttack()
 {
-	CharacterAttacks->Attack(CharacterEquipment, EAttackType::EStrongAttack, CharacterClass);
-}
-
-void AMyrrhageCharacter::StopStrongAttack()
-{
-	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Black, "StopStrongAttack");
+	ExecuteAttack(StrongAttackAnimation);
 }
 
 void AMyrrhageCharacter::UltimateAttack()
 {
-	CharacterAttacks->Attack(CharacterEquipment, EAttackType::EUltimateAttack, CharacterClass);
+	ExecuteAttack(UltimateAttackAnimation);
 }
 
-void AMyrrhageCharacter::StopUltimateAttack()
+void AMyrrhageCharacter::StopAttack()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Black, "StopUltimateAttack");
+	IsAttacking = false;
 }
 
 //////////////////////////////////////////////////////////////////////////
