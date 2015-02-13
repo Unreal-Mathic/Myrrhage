@@ -16,20 +16,22 @@ AMyrrhageCharacter::AMyrrhageCharacter(const FObjectInitializer& ObjectInitializ
 	struct FConstructorStatics
 	{
 		ConstructorHelpers::FObjectFinderOptional<UPaperFlipbook> RunningAnimationAsset;
+		ConstructorHelpers::FObjectFinderOptional<UPaperFlipbook> WalkingAnimationAsset;
 		ConstructorHelpers::FObjectFinderOptional<UPaperFlipbook> IdleAnimationAsset;
 		ConstructorHelpers::FObjectFinderOptional<UPaperFlipbook> BaseAttackAnimationAsset;
 		ConstructorHelpers::FObjectFinderOptional<UPaperFlipbook> WeakAttackAnimationAsset;
 		ConstructorHelpers::FObjectFinderOptional<UPaperFlipbook> StrongAttackAnimationAsset;
 		ConstructorHelpers::FObjectFinderOptional<UPaperFlipbook> UltimateAttackAnimationAsset;
-		ConstructorHelpers::FObjectFinderOptional<UPaperFlipbook> RangeAttackAnimationAsset;
+		//ConstructorHelpers::FObjectFinderOptional<UPaperFlipbook> RangeAttackAnimationAsset;
 		FConstructorStatics()
 			: RunningAnimationAsset(TEXT("/Game/Sprites/RunningAnimation.RunningAnimation"))
+			, WalkingAnimationAsset(TEXT("/Game/Sprites/WalkingAnimation.WalkingAnimation"))
 			, IdleAnimationAsset(TEXT("/Game/Sprites/IdleAnimation.IdleAnimation"))
-			, BaseAttackAnimationAsset(TEXT("/Game/Sprites/FinnBaseAttack.FinnBaseAttack"))
-			, WeakAttackAnimationAsset(TEXT("/Game/Sprites/FinnWeakAttack.FinnWeakAttack"))
-			, StrongAttackAnimationAsset(TEXT("/Game/Sprites/FinnStrongAttack.FinnStrongAttack"))
-			, UltimateAttackAnimationAsset(TEXT("/Game/Sprites/FinnUltimate.FinnUltimate"))
-			, RangeAttackAnimationAsset(TEXT("/Game/Sprites/FinnRange.FinnRange"))
+			, BaseAttackAnimationAsset(TEXT("/Game/Sprites/BaseAttackAnimation.BaseAttackAnimation"))
+			, WeakAttackAnimationAsset(TEXT("/Game/Sprites/WeakAttackAnimation.WeakAttackAnimation"))
+			, StrongAttackAnimationAsset(TEXT("/Game/Sprites/StrongAttackAnimation.StrongAttackAnimation"))
+			, UltimateAttackAnimationAsset(TEXT("/Game/Sprites/UltimateAttackAnimation.UltimateAttackAnimation"))
+			//, RangeAttackAnimationAsset(TEXT("/Game/Sprites/FinnRange.FinnRange"))
 		{
 		}
 	};
@@ -38,13 +40,14 @@ AMyrrhageCharacter::AMyrrhageCharacter(const FObjectInitializer& ObjectInitializ
 	SetActorEnableCollision(true);
 
 	RunningAnimation = ConstructorStatics.RunningAnimationAsset.Get();
+	WalkingAnimation = ConstructorStatics.WalkingAnimationAsset.Get();
 	IdleAnimation = ConstructorStatics.IdleAnimationAsset.Get();
 	BaseAttackAnimation = ConstructorStatics.BaseAttackAnimationAsset.Get();
 	WeakAttackAnimation = ConstructorStatics.WeakAttackAnimationAsset.Get();
 	StrongAttackAnimation = ConstructorStatics.StrongAttackAnimationAsset.Get();
 	UltimateAttackAnimation = ConstructorStatics.UltimateAttackAnimationAsset.Get();
-	RangeAttackAnimation = ConstructorStatics.RangeAttackAnimationAsset.Get();
-	GetSprite()->SetFlipbook(BaseAttackAnimation);
+	//RangeAttackAnimation = ConstructorStatics.RangeAttackAnimationAsset.Get();
+	GetSprite()->SetFlipbook(IdleAnimation);
 
 	// Use only Yaw from the controller and ignore the rest of the rotation.
 	bUseControllerRotationPitch = false;
@@ -114,7 +117,7 @@ void AMyrrhageCharacter::UpdateAnimation()
 	const float PlayerSpeed = PlayerVelocity.Size();
 
 	// Are we moving or standing still?
-	UPaperFlipbook* DesiredAnimation = (PlayerSpeed > 0.0f) ? RunningAnimation : IdleAnimation;
+	UPaperFlipbook* DesiredAnimation = (PlayerSpeed > 0.0f) ? WalkingAnimation : IdleAnimation;
 
 	GetSprite()->SetFlipbook(DesiredAnimation);
 }
