@@ -14,29 +14,37 @@ class MYRRHAGE_API ABaseEquipment : public ABaseItem
 {
 	GENERATED_BODY()
 
-protected:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
-	TArray<FStatStruct> Stats;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
-	FStatStruct RequiredStat;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
-	TEnumAsByte<EEquippedOn> EquippedOn;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
-	TEnumAsByte<EClass> ClassType;
 public:
 	ABaseEquipment(const class FObjectInitializer& PCIP);
 
+	/* Property getters and setters */
 	TArray<FStatStruct> GetStats();
 
 	FStatStruct GetRequiredStat();
 
 	void SetEquippedOn(EEquippedOn);
-	TEnumAsByte<EEquippedOn> GetEquippedOn();
-	
-	TEnumAsByte<EClass> GetClassType();
+	EEquippedOn GetEquippedOn();
 
+	EClass GetClassType();
+	/* End property getters and setters */
+
+	// Override the ABaseItem OnPickUp
 	void OnPickUp_Implementation() override;
+
+protected:
+	// Equipment can have more than one stat
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
+	TArray<FStatStruct> Stats;
+
+	// Required stat a character needs to equip this item
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
+	FStatStruct RequiredStat;
+
+	// The body part this item is equipped on
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
+	EEquippedOn EquippedOn;
+
+	// Only characters of this class can weat this item
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
+	EClass ClassType;
 };

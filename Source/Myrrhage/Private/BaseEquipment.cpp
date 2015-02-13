@@ -20,12 +20,12 @@ void ABaseEquipment::SetEquippedOn(EEquippedOn EquippedOn)
 	this->EquippedOn = EquippedOn;
 }
 
-TEnumAsByte<EEquippedOn> ABaseEquipment::GetEquippedOn()
+EEquippedOn ABaseEquipment::GetEquippedOn()
 {
 	return EquippedOn;
 }
 
-TEnumAsByte<EClass> ABaseEquipment::GetClassType()
+EClass ABaseEquipment::GetClassType()
 {
 	return ClassType;
 }

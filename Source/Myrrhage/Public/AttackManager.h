@@ -15,6 +15,16 @@ UCLASS()
 class MYRRHAGE_API UAttackManager : public UObject
 {
 	GENERATED_BODY()
+
+public:
+	UAttackManager();
+	
+	// Attack based on character's equipped weapon
+	void Attack(UEquipmentManager*, EAttackType, EClass);
+	void DefaultBaseAttack(EClass);
+	void DefaultWeakAttack(EClass);
+	void DefaultStrongAttack(EClass);
+	void DefaultUltimateAttack(EClass);
 	
 protected:
 	/** Called form a notify when the attack animation has ended */
@@ -36,12 +46,4 @@ protected:
 
 	/** list of actors currently being hit */
 	TArray<AActor*> HitActors;
-
-public:
-	UAttackManager();
-	void Attack(UEquipmentManager*, TEnumAsByte<EAttackType>, TEnumAsByte<EClass>);
-	void DefaultBaseAttack(TEnumAsByte<EClass>);
-	void DefaultWeakAttack(TEnumAsByte<EClass>);
-	void DefaultStrongAttack(TEnumAsByte<EClass>);
-	void DefaultUltimateAttack(TEnumAsByte<EClass>);
 };

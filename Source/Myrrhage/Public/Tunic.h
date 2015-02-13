@@ -13,7 +13,6 @@ class MYRRHAGE_API ATunic : public ABaseArmor
 {
 	GENERATED_BODY()
 	
-	
+public:
 	ATunic(const class FObjectInitializer& PCIP);
-	
 };

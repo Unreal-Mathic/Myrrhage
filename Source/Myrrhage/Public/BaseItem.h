@@ -14,18 +14,22 @@ class MYRRHAGE_API ABaseItem : public APaperSpriteActor
 {
 	GENERATED_BODY()
 
-protected:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Item)
-	TEnumAsByte<EItem> ItemType;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Item)
-	FString Name;
-
 public:
+	ABaseItem(const class FObjectInitializer& PCIP);
+
+	// The item can be picked up
 	UFUNCTION(BlueprintNativeEvent)
 	void OnPickUp();
 
-	ABaseItem(const class FObjectInitializer& PCIP);
-
+	// Getter for Name
 	FString GetItemName();
+
+protected:
+	// The item can be a weapon, armor or potion
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Item)
+	EItem ItemType;
+
+	// All items must have a name
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Item)
+	FString Name;
 };

@@ -79,12 +79,12 @@ struct FStatStruct
 	float StatValue;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Items)
-	TEnumAsByte<EStat> StatType;
+	EStat StatType;
 	
 	void SetValue(float value){ StatValue = value; }
 	float GetValue(){ return StatValue; }
-	void SetType(TEnumAsByte<EStat> type){ StatType = type; }
-	TEnumAsByte<EStat> GetType(){ return StatType; }
+	void SetType(EStat type){ StatType = type; }
+	EStat GetType(){ return StatType; }
 	void AddToValue(float value){ StatValue += value; }
 	void SubtractFromValue(float value){ StatValue -= value; }
 
@@ -117,13 +117,13 @@ struct FStatStruct
 	}
 
 	FStatStruct(){}
-	FStatStruct(TEnumAsByte<EStat> type)
+	FStatStruct(EStat type)
 	{
 		StatType = type;
 		StatValue = (rand() % 10) + 1;
 	}
 
-	FStatStruct(TEnumAsByte<EStat> type, float value)
+	FStatStruct(EStat type, float value)
 	{
 		StatType = type;
 		StatValue = value;

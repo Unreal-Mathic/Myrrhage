@@ -29,31 +29,51 @@ class AMyrrhageCharacter : public APaperCharacter
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class USpringArmComponent* CameraBoom;
 
+public:
+	AMyrrhageCharacter(const FObjectInitializer& ObjectInitializer);
+
+	/** Returns SideViewCameraComponent subobject **/
+	FORCEINLINE class UCameraComponent* GetSideViewCameraComponent() const { return SideViewCameraComponent; }
+	/** Returns CameraBoom subobject **/
+	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
+
+	// Getter for StatManager
+	UStatManager* GetStatManager();
+
 protected:
 	// The animation to play while running around
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Animations)
 	class UPaperFlipbook* RunningAnimation;
 
-	// The animation to play while running around
+	// The animation to play while walking around
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animations)
 	class UPaperFlipbook* WalkingAnimation;
+
+	// The animation to play while jumping around
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animations)
+	class UPaperFlipbook* JumpingAnimation;
 
 	// The animation to play while idle (standing still)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animations)
 	class UPaperFlipbook* IdleAnimation;
 
+	// The animation to play while doing a base attack (Q)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animations)
 	class UPaperFlipbook* BaseAttackAnimation;
 
+	// The animation to play while doing a weak attack (W)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animations)
 	class UPaperFlipbook* WeakAttackAnimation;
 
+	// The animation to play while doing a strong attack (E)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animations)
 	class UPaperFlipbook* StrongAttackAnimation;
 
+	// The animation to play while doing ultimate attack (R)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animations)
 	class UPaperFlipbook* UltimateAttackAnimation;
 
+	// The animation to play while doing a range attack (TODO throwing or shooting weapons + projectiles)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animations)
 	class UPaperFlipbook* RangeAttackAnimation;
 
@@ -75,11 +95,11 @@ protected:
 
 	// Character's class type
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Myrrhage)
-	TEnumAsByte<EClass> CharacterClass;
+	EClass CharacterClass;
 
 	// Character's preferred hand
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Myrrhage)
-	TEnumAsByte<EHandedness> CharacterHandedness;
+	EHandedness CharacterHandedness;
 
 	int num = 0;
 
@@ -88,6 +108,12 @@ protected:
 
 	/** Called for side to side input */
 	void MoveRight(float Value);
+
+	bool bIsRunning;
+
+	/** Called for running input */
+	void Running();
+	void StopRunning();
 
 	/** Handle touch inputs. */
 	void TouchStarted(const ETouchIndex::Type FingerIndex, const FVector Location);
@@ -99,6 +125,7 @@ protected:
 	virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) override;
 	// End of APawn interface
 
+	// Override Tick funtion
 	virtual void Tick(float DeltaSeconds) override;
 
 	// Inventory methods
@@ -111,25 +138,23 @@ protected:
 	void Equip();
 	// end of Inventory methods
 
-	bool IsAttacking;
-
 	// Abilities input
-	void ExecuteAttack(UPaperFlipbook*);
+	bool bIsAttacking;
+
+	void ExecuteAnimation(UPaperFlipbook*);
 
 	void BaseAttack();
+
 	void WeakAttack();
+
 	void StrongAttack();
+
 	void UltimateAttack();
+
 	void StopAttack();
 	// end of abilities input
 
-public:
-	AMyrrhageCharacter(const FObjectInitializer& ObjectInitializer);
-
-	/** Returns SideViewCameraComponent subobject **/
-	FORCEINLINE class UCameraComponent* GetSideViewCameraComponent() const { return SideViewCameraComponent; }
-	/** Returns CameraBoom subobject **/
-	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
-
-	UStatManager* GetStatManager();
+	bool bIsJumping;
+	virtual void Jump() override;
+	virtual void StopJumping() override;
 };

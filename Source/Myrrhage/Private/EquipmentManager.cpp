@@ -51,7 +51,7 @@ void UEquipmentManager::CheckEquipped(class UStatManager* CharacterStats, class 
 	}
 }
 
-void UEquipmentManager::Equip(class UStatManager* CharacterStats, class ABaseEquipment* Equipment, TEnumAsByte<EHandedness> Handedness)
+void UEquipmentManager::Equip(class UStatManager* CharacterStats, class ABaseEquipment* Equipment, EHandedness Handedness)
 {
 	// equip it in the right character slot
 	switch (Equipment->GetEquippedOn())

@@ -17,6 +17,7 @@ AMyrrhageCharacter::AMyrrhageCharacter(const FObjectInitializer& ObjectInitializ
 	{
 		ConstructorHelpers::FObjectFinderOptional<UPaperFlipbook> RunningAnimationAsset;
 		ConstructorHelpers::FObjectFinderOptional<UPaperFlipbook> WalkingAnimationAsset;
+		ConstructorHelpers::FObjectFinderOptional<UPaperFlipbook> JumpingAnimationAsset;
 		ConstructorHelpers::FObjectFinderOptional<UPaperFlipbook> IdleAnimationAsset;
 		ConstructorHelpers::FObjectFinderOptional<UPaperFlipbook> BaseAttackAnimationAsset;
 		ConstructorHelpers::FObjectFinderOptional<UPaperFlipbook> WeakAttackAnimationAsset;
@@ -26,6 +27,7 @@ AMyrrhageCharacter::AMyrrhageCharacter(const FObjectInitializer& ObjectInitializ
 		FConstructorStatics()
 			: RunningAnimationAsset(TEXT("/Game/Sprites/RunningAnimation.RunningAnimation"))
 			, WalkingAnimationAsset(TEXT("/Game/Sprites/WalkingAnimation.WalkingAnimation"))
+			, JumpingAnimationAsset(TEXT("/Game/Sprites/JumpingAnimation.JumpingAnimation"))
 			, IdleAnimationAsset(TEXT("/Game/Sprites/IdleAnimation.IdleAnimation"))
 			, BaseAttackAnimationAsset(TEXT("/Game/Sprites/BaseAttackAnimation.BaseAttackAnimation"))
 			, WeakAttackAnimationAsset(TEXT("/Game/Sprites/WeakAttackAnimation.WeakAttackAnimation"))
@@ -41,6 +43,7 @@ AMyrrhageCharacter::AMyrrhageCharacter(const FObjectInitializer& ObjectInitializ
 
 	RunningAnimation = ConstructorStatics.RunningAnimationAsset.Get();
 	WalkingAnimation = ConstructorStatics.WalkingAnimationAsset.Get();
+	JumpingAnimation = ConstructorStatics.JumpingAnimationAsset.Get();
 	IdleAnimation = ConstructorStatics.IdleAnimationAsset.Get();
 	BaseAttackAnimation = ConstructorStatics.BaseAttackAnimationAsset.Get();
 	WeakAttackAnimation = ConstructorStatics.WeakAttackAnimationAsset.Get();
@@ -110,16 +113,23 @@ AMyrrhageCharacter::AMyrrhageCharacter(const FObjectInitializer& ObjectInitializ
 
 void AMyrrhageCharacter::UpdateAnimation()
 {
-	if (IsAttacking)
+	if (bIsAttacking || bIsJumping)
 		return;
 	//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Black, "NotAttacking");
 	const FVector PlayerVelocity = GetVelocity();
 	const float PlayerSpeed = PlayerVelocity.Size();
 
-	// Are we moving or standing still?
-	UPaperFlipbook* DesiredAnimation = (PlayerSpeed > 0.0f) ? WalkingAnimation : IdleAnimation;
+	if (bIsRunning && PlayerSpeed > 0.0f)
+	{
+		GetSprite()->SetFlipbook(RunningAnimation);
+	}
+	else
+	{
+		// Are we moving or standing still?
+		UPaperFlipbook* DesiredAnimation = (PlayerSpeed > 0.0f) ? WalkingAnimation : IdleAnimation;
 
-	GetSprite()->SetFlipbook(DesiredAnimation);
+		GetSprite()->SetFlipbook(DesiredAnimation);
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -128,9 +138,12 @@ void AMyrrhageCharacter::UpdateAnimation()
 void AMyrrhageCharacter::SetupPlayerInputComponent(class UInputComponent* InputComponent)
 {
 	// Note: the 'Jump' action and the 'MoveRight' axis are bound to actual keys/buttons/sticks in DefaultInput.ini (editable from Project Settings..Input)
-	InputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
-	InputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
+	InputComponent->BindAction("Jump", IE_Pressed, this, &AMyrrhageCharacter::Jump);
 	InputComponent->BindAxis("MoveRight", this, &AMyrrhageCharacter::MoveRight);
+
+	// Running
+	InputComponent->BindAction("Shift", IE_Pressed, this, &AMyrrhageCharacter::Running);
+	InputComponent->BindAction("Shift", IE_Released, this, &AMyrrhageCharacter::StopRunning);
 
 	InputComponent->BindAction("Inventory", IE_Pressed, this, &AMyrrhageCharacter::OpenInventory);
 
@@ -166,11 +179,43 @@ void AMyrrhageCharacter::MoveRight(float Value)
 	}
 
 	// Apply the input to the character motion
-	AddMovementInput(FVector(1.0f, 0.0f, 0.0f), Value);
+	if (bIsRunning)
+		AddMovementInput(FVector(3.0f, 0.0f, 0.0f), Value);
+	else
+		AddMovementInput(FVector(1.0f, 0.0f, 0.0f), Value);
+}
+
+void AMyrrhageCharacter::Jump()
+{
+	Super::Jump();
+	if (!bIsJumping)
+	{
+		bIsJumping = true;
+		GetSprite()->SetFlipbook(JumpingAnimation);
+		GetWorldTimerManager().SetTimer(this, &AMyrrhageCharacter::StopJumping, JumpingAnimation->GetTotalDuration(), true, JumpingAnimation->GetTotalDuration());
+	}
+}
+
+void AMyrrhageCharacter::StopJumping()
+{
+	Super::StopJumping();
+	bIsJumping = false;
+}
+
+void AMyrrhageCharacter::Running()
+{
+	bIsRunning = true;
+}
+
+void AMyrrhageCharacter::StopRunning()
+{
+	bIsRunning = false;
 }
 
 void AMyrrhageCharacter::TouchStarted(const ETouchIndex::Type FingerIndex, const FVector Location)
 {
+	// run when shift is held down
+	Running();
 	// jump on any touch
 	Jump();
 	// attacks
@@ -182,7 +227,7 @@ void AMyrrhageCharacter::TouchStarted(const ETouchIndex::Type FingerIndex, const
 
 void AMyrrhageCharacter::TouchStopped(const ETouchIndex::Type FingerIndex, const FVector Location)
 {
-	StopJumping();
+	StopRunning();
 }
 
 void AMyrrhageCharacter::OpenInventory()
@@ -193,11 +238,11 @@ void AMyrrhageCharacter::OpenInventory()
 //////////////////////////////////////////////////////////////////////////
 // Player input attacks
 
-void AMyrrhageCharacter::ExecuteAttack(UPaperFlipbook* Animation)
+void AMyrrhageCharacter::ExecuteAnimation(UPaperFlipbook* Animation)
 {
-	if (!IsAttacking)
+	if (!bIsAttacking)
 	{
-		IsAttacking = true;
+		bIsAttacking = true;
 		GetSprite()->SetFlipbook(Animation);
 		GetWorldTimerManager().SetTimer(this, &AMyrrhageCharacter::StopAttack, Animation->GetTotalDuration(), false, Animation->GetTotalDuration());
 		CharacterAttacks->Attack(CharacterEquipment, EAttackType::EBaseAttack, CharacterClass);
@@ -206,27 +251,28 @@ void AMyrrhageCharacter::ExecuteAttack(UPaperFlipbook* Animation)
 
 void AMyrrhageCharacter::BaseAttack()
 {
-	ExecuteAttack(BaseAttackAnimation);
+	ExecuteAnimation(BaseAttackAnimation);
 }
 
 void AMyrrhageCharacter::WeakAttack()
 {
-	ExecuteAttack(WeakAttackAnimation);
+	ExecuteAnimation(WeakAttackAnimation);
 }
 
 void AMyrrhageCharacter::StrongAttack()
 {
-	ExecuteAttack(StrongAttackAnimation);
+	if (bIsJumping)
+		ExecuteAnimation(StrongAttackAnimation);
 }
 
 void AMyrrhageCharacter::UltimateAttack()
 {
-	ExecuteAttack(UltimateAttackAnimation);
+	ExecuteAnimation(UltimateAttackAnimation);
 }
 
 void AMyrrhageCharacter::StopAttack()
 {
-	IsAttacking = false;
+	bIsAttacking = false;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -255,6 +301,10 @@ void AMyrrhageCharacter::Equip()
 
 		num++;
 		if (num >= CharacterInventory.Num()){ num = 0; }
+	}
+	else
+	{
+		bIsJumping = false;
 	}
 }
 

@@ -66,7 +66,7 @@ void UAttackManager::ProcessHitActor(AActor* ActorToProcess)
 	//}
 }
 
-void UAttackManager::Attack(UEquipmentManager* Equipment, TEnumAsByte<EAttackType> AttackType, TEnumAsByte<EClass> Class)
+void UAttackManager::Attack(UEquipmentManager* Equipment, EAttackType AttackType, EClass Class)
 {
 	switch (AttackType)
 	{
@@ -100,7 +100,7 @@ void UAttackManager::Attack(UEquipmentManager* Equipment, TEnumAsByte<EAttackTyp
 	}
 }
 
-void UAttackManager::DefaultBaseAttack(TEnumAsByte<EClass> Class)
+void UAttackManager::DefaultBaseAttack(EClass Class)
 {
 	FString msg = "DefaultBaseAttack ";
 	switch (Class)
@@ -124,7 +124,7 @@ void UAttackManager::DefaultBaseAttack(TEnumAsByte<EClass> Class)
 	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Cyan, msg);
 }
 
-void UAttackManager::DefaultWeakAttack(TEnumAsByte<EClass> Class)
+void UAttackManager::DefaultWeakAttack(EClass Class)
 {
 	FString msg = "DefaultWeakAttack ";
 	switch (Class)
@@ -148,7 +148,7 @@ void UAttackManager::DefaultWeakAttack(TEnumAsByte<EClass> Class)
 	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Cyan, msg);
 }
 
-void UAttackManager::DefaultStrongAttack(TEnumAsByte<EClass> Class)
+void UAttackManager::DefaultStrongAttack(EClass Class)
 {
 	FString msg = "DefaultStrongAttack ";
 	switch (Class)
@@ -172,7 +172,7 @@ void UAttackManager::DefaultStrongAttack(TEnumAsByte<EClass> Class)
 	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Cyan, msg);
 }
 
-void UAttackManager::DefaultUltimateAttack(TEnumAsByte<EClass> Class)
+void UAttackManager::DefaultUltimateAttack(EClass Class)
 {
 	FString msg = "DefaultUltimateAttack ";
 	switch (Class)

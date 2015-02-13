@@ -12,11 +12,10 @@ UCLASS(abstract)
 class MYRRHAGE_API ABaseWeapon : public ABaseEquipment
 {
 	GENERATED_BODY()
-	
-protected:
+public:
 	ABaseWeapon(const class FObjectInitializer& PCIP);
 
-public:
+	// The attacks of the weapon get called in AttackManager
 	void BaseAttack();
 	void WeakAttack();
 	void StrongAttack();
