@@ -17,9 +17,14 @@ class MYRRHAGE_API ABaseItem : public APaperSpriteActor
 public:
 	ABaseItem(const class FObjectInitializer& PCIP);
 
+	UFUNCTION(BlueprintCallable, Category = Item)
+	virtual void PickedUp();
+
 	// The item can be picked up
 	UFUNCTION(BlueprintNativeEvent)
-	void OnPickUp();
+	void OnPickedUp();
+
+	virtual void OnPickedUp_Implementation();
 
 	// Getter for Name
 	FString GetItemName();

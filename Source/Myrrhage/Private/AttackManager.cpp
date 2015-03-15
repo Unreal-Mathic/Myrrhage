@@ -5,65 +5,7 @@
 
 UAttackManager::UAttackManager()
 {
-	// Character Attack
-	/*TArray<struct FOverlapResult> OutOverlaps;
-	FQuat Rotation = GetTransform().GetRotation();
-	FVector Start = GetTransform().GetLocation() + Rotation.Rotator().Vector() * 100.0f;
-	FCollisionShape CollisionHitShape;
-	FCollisionQueryParams CollisionParams;
-	CollisionParams.AddIgnoredActor(this);
-
-	FCollisionObjectQueryParams CollisionObjectTypes;
-	CollisionObjectTypes.AddObjectTypesToQuery(ECollisionChannel::ECC_PhysicsBody);
-	CollisionObjectTypes.AddObjectTypesToQuery(ECollisionChannel::ECC_Pawn);
-	CollisionObjectTypes.AddObjectTypesToQuery(ECollisionChannel::ECC_WorldStatic);
-
-	CollisionHitShape = FCollisionShape::MakeBox(FVector(100.0f, 60.0f, 0.5f));
-	GetWorld()->OverlapMulti(OutOverlaps, Start, Rotation, CollisionHitShape, CollisionParams, CollisionObjectTypes);
-
-	for (int i = 0; i < OutOverlaps.Num(); ++i)
-	{
-		if (OutOverlaps[i].GetActor() && !HitActors.Contains(OutOverlaps[i].GetActor()))
-		{
-			ProcessHitActor(OutOverlaps[i].GetActor());
-		}
-	}*/
-}
-
-void UAttackManager::StartDoingDamage()
-{
-	bDoingDamage = true;
-}
-
-void UAttackManager::StopDoingDamage()
-{
-	bDoingDamage = false;
-	//Clear Hit Actors array
-	HitActors.Empty();
-}
-
-void UAttackManager::AttackTrace()
-{
-
-}
-
-void UAttackManager::ProcessHitActor(AActor* ActorToProcess)
-{
-	//if (!ActorToProcess || HitActors.Contains(ActorToProcess))
-	//{
-	//	return;
-	//}
-	////Add this actor to the array because we are spawning one box per tick and we don't want to hit the same actor twice during the same attack animation
-	//HitActors.AddUnique(ActorToProcess);
-	//FHitResult AttackHitResult;
-	//FDamageEvent AttackDamageEvent;
-	//AMyrrhageCharacter* GameCharacter = Cast<AMyrrhageCharacter>(ActorToProcess);
-
-	//if (GameCharacter)
-	//{
-	//	//Deal damage to the character
-	//	ActorToProcess->TakeDamage(50.0f, AttackDamageEvent, GetController(), this);
-	//}
+	
 }
 
 void UAttackManager::Attack(UEquipmentManager* Equipment, EAttackType AttackType, EClass Class)

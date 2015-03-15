@@ -2,6 +2,7 @@
 
 #include "MyrrhagePrivate.h"
 #include "MyrrhageCharacter.h"
+#include "EnemyCharacter.h"
 #include "BaseItem.h"
 #include "BaseEquipment.h"
 #include "PaperFlipbookComponent.h"
@@ -104,8 +105,68 @@ AMyrrhageCharacter::AMyrrhageCharacter(const FObjectInitializer& ObjectInitializ
 	CharacterEquipment = NewObject<UEquipmentManager>();
 	CharacterStats = NewObject<UStatManager>();
 	CharacterAttacks = NewObject<UAttackManager>();
-	CharacterClass = EClass::EHacker;
+	CharacterClass = EClass::ECyborg;
 	CharacterHandedness = EHandedness::ELeftHanded;
+	CharacterHealth = 100.0f;
+}
+
+void AMyrrhageCharacter::StartDoingDamage()
+{
+	bDoingDamage = true;
+}
+
+void AMyrrhageCharacter::StopDoingDamage()
+{
+	bDoingDamage = false;
+	//Clear Hit Actors array
+	HitActors.Empty();
+}
+
+void AMyrrhageCharacter::AttackTrace()
+{
+	TArray<struct FOverlapResult> OutOverlaps;
+	FQuat Rotation = GetTransform().GetRotation();
+	FVector Start = GetTransform().GetLocation() + Rotation.Rotator().Vector() * 100.0f;
+	FCollisionShape CollisionHitShape;
+	FCollisionQueryParams CollisionParams;
+	CollisionParams.AddIgnoredActor(this);
+
+	FCollisionObjectQueryParams CollisionObjectTypes;
+	CollisionObjectTypes.AddObjectTypesToQuery(ECollisionChannel::ECC_PhysicsBody);
+	CollisionObjectTypes.AddObjectTypesToQuery(ECollisionChannel::ECC_Pawn);
+	CollisionObjectTypes.AddObjectTypesToQuery(ECollisionChannel::ECC_WorldStatic);
+
+	CollisionHitShape = FCollisionShape::MakeBox(FVector(100.0f, 60.0f, 0.5f));
+	GetWorld()->OverlapMulti(OutOverlaps, Start, Rotation, CollisionHitShape, CollisionParams, CollisionObjectTypes);
+
+	for (int i = 0; i < OutOverlaps.Num(); ++i)
+	{
+		if (OutOverlaps[i].GetActor() && !HitActors.Contains(OutOverlaps[i].GetActor()))
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Black, "Actor added");
+			ProcessHitActor(OutOverlaps[i].GetActor());
+		}
+	}
+}
+
+void AMyrrhageCharacter::ProcessHitActor(AActor* ActorToProcess)
+{
+	if (!ActorToProcess || HitActors.Contains(ActorToProcess))
+	{
+		return;
+	}
+	//Add this actor to the array because we are spawning one box per tick and we don't want to hit the same actor twice during the same attack animation
+	HitActors.AddUnique(ActorToProcess);
+	FHitResult AttackHitResult;
+	FDamageEvent AttackDamageEvent;
+	AEnemyCharacter* GameCharacter = Cast<AEnemyCharacter>(ActorToProcess);
+
+	if (GameCharacter)
+	{
+		//Deal damage to the character
+		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, "Dealing Damage");
+		ActorToProcess->TakeDamage(50.0f, AttackDamageEvent, GetController(), this);
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -114,7 +175,10 @@ AMyrrhageCharacter::AMyrrhageCharacter(const FObjectInitializer& ObjectInitializ
 void AMyrrhageCharacter::UpdateAnimation()
 {
 	if (bIsAttacking || bIsJumping)
+	{
 		return;
+	}
+
 	//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Black, "NotAttacking");
 	const FVector PlayerVelocity = GetVelocity();
 	const float PlayerSpeed = PlayerVelocity.Size();
@@ -129,6 +193,18 @@ void AMyrrhageCharacter::UpdateAnimation()
 		UPaperFlipbook* DesiredAnimation = (PlayerSpeed > 0.0f) ? WalkingAnimation : IdleAnimation;
 
 		GetSprite()->SetFlipbook(DesiredAnimation);
+	}
+}
+
+void AMyrrhageCharacter::PlayAnimationOnce(UPaperFlipbook* Animation)
+{
+	if (!bIsAttacking)
+	{
+		bIsAttacking = true;
+		GetSprite()->SetFlipbook(Animation);
+		FTimerHandle time_handler;
+		GetWorldTimerManager().SetTimer(time_handler, this, &AMyrrhageCharacter::StopAttack, Animation->GetTotalDuration(), false);
+		CharacterAttacks->Attack(CharacterEquipment, EAttackType::EBaseAttack, CharacterClass);
 	}
 }
 
@@ -162,6 +238,9 @@ void AMyrrhageCharacter::SetupPlayerInputComponent(class UInputComponent* InputC
 
 void AMyrrhageCharacter::MoveRight(float Value)
 {
+	if (bIsAttacking)
+		return;
+
 	// Update animation to match the motion
 	UpdateAnimation();
 
@@ -192,7 +271,8 @@ void AMyrrhageCharacter::Jump()
 	{
 		bIsJumping = true;
 		GetSprite()->SetFlipbook(JumpingAnimation);
-		GetWorldTimerManager().SetTimer(this, &AMyrrhageCharacter::StopJumping, JumpingAnimation->GetTotalDuration(), true, JumpingAnimation->GetTotalDuration());
+		FTimerHandle time_handler;
+		GetWorldTimerManager().SetTimer(time_handler, this, &AMyrrhageCharacter::StopJumping, JumpingAnimation->GetTotalDuration(), false);
 	}
 }
 
@@ -230,48 +310,39 @@ void AMyrrhageCharacter::TouchStopped(const ETouchIndex::Type FingerIndex, const
 	StopRunning();
 }
 
-void AMyrrhageCharacter::OpenInventory()
-{
-	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, "Inventory GUI not implemented yet.");
-}
-
 //////////////////////////////////////////////////////////////////////////
 // Player input attacks
 
-void AMyrrhageCharacter::ExecuteAnimation(UPaperFlipbook* Animation)
-{
-	if (!bIsAttacking)
-	{
-		bIsAttacking = true;
-		GetSprite()->SetFlipbook(Animation);
-		GetWorldTimerManager().SetTimer(this, &AMyrrhageCharacter::StopAttack, Animation->GetTotalDuration(), false, Animation->GetTotalDuration());
-		CharacterAttacks->Attack(CharacterEquipment, EAttackType::EBaseAttack, CharacterClass);
-	}
-}
-
 void AMyrrhageCharacter::BaseAttack()
 {
-	ExecuteAnimation(BaseAttackAnimation);
+	StartDoingDamage();
+	PlayAnimationOnce(BaseAttackAnimation);
 }
 
 void AMyrrhageCharacter::WeakAttack()
 {
-	ExecuteAnimation(WeakAttackAnimation);
+	StartDoingDamage();
+	PlayAnimationOnce(WeakAttackAnimation);
 }
 
 void AMyrrhageCharacter::StrongAttack()
 {
 	if (bIsJumping)
-		ExecuteAnimation(StrongAttackAnimation);
+	{
+		StartDoingDamage();
+		PlayAnimationOnce(StrongAttackAnimation);
+	}
 }
 
 void AMyrrhageCharacter::UltimateAttack()
 {
-	ExecuteAnimation(UltimateAttackAnimation);
+	StartDoingDamage();
+	PlayAnimationOnce(UltimateAttackAnimation);
 }
 
 void AMyrrhageCharacter::StopAttack()
 {
+	StopDoingDamage();
 	bIsAttacking = false;
 }
 
@@ -281,6 +352,11 @@ void AMyrrhageCharacter::StopAttack()
 UStatManager* AMyrrhageCharacter::GetStatManager()
 {
 	return CharacterStats;
+}
+
+void AMyrrhageCharacter::OpenInventory()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, "Inventory GUI not implemented yet.");
 }
 
 void AMyrrhageCharacter::Equip()
@@ -314,6 +390,11 @@ void AMyrrhageCharacter::Equip()
 void AMyrrhageCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
+
+	if (bDoingDamage)
+	{
+		AttackTrace();
+	}
 }
 
 void AMyrrhageCharacter::ReceiveHit(class UPrimitiveComponent* MyComp,
@@ -338,15 +419,6 @@ void AMyrrhageCharacter::PickUpItems(class ABaseItem* Item)
 	CharacterInventory.Add(Item);
 	if (dynamic_cast<ABaseEquipment*>(Item))
 	{
-		dynamic_cast<ABaseEquipment*>(Item)->OnPickUp_Implementation();
+		dynamic_cast<ABaseEquipment*>(Item)->PickedUp();
 	}
-#ifdef UE_BUILD_DEBUG
-	ABaseItem* CurItem = NULL;
-	for (int32 b = 0; b < CharacterInventory.Num(); b++)
-	{
-		CurItem = CharacterInventory[b];
-		if (!CurItem) continue;
-		if (!CurItem->IsValidLowLevel()) continue;
-	}
-#endif
 }

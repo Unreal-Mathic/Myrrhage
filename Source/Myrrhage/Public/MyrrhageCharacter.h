@@ -40,6 +40,9 @@ public:
 	// Getter for StatManager
 	UStatManager* GetStatManager();
 
+	// Getter for CharacterHealth
+	float GetCharacterHealth() const;
+
 protected:
 	// The animation to play while running around
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Animations)
@@ -89,7 +92,7 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Myrrhage)
 	UStatManager* CharacterStats;
 
-	// Character's innate abilities
+	// Character's attack manager
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Myrrhage)
 	UAttackManager* CharacterAttacks;
 
@@ -97,9 +100,12 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Myrrhage)
 	EClass CharacterClass;
 
-	// Character's preferred hand
+	// Character's preferred hand (or ambidextrous)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Myrrhage)
 	EHandedness CharacterHandedness;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Myrrhage)
+	float CharacterHealth;
 
 	int num = 0;
 
@@ -139,9 +145,30 @@ protected:
 	// end of Inventory methods
 
 	// Abilities input
+
+	/** Called form a notify when the attack animation has ended */
+	UFUNCTION(BlueprintCallable, Category = "Game Combat")
+	void StartDoingDamage();
+
+	/** Called form a notify when the attack animation has ended */
+	UFUNCTION(BlueprintCallable, Category = "Game Combat")
+	void StopDoingDamage();
+
+	/** Responsible for creating the collision box */
+	UFUNCTION()
+	void AttackTrace();
+
+	/** Should the character be doing damage at the moment? */
+	bool bDoingDamage;
+
+	void ProcessHitActor(AActor*);
+
+	/** list of actors currently being hit */
+	TArray<AActor*> HitActors;
+
 	bool bIsAttacking;
 
-	void ExecuteAnimation(UPaperFlipbook*);
+	void PlayAnimationOnce(UPaperFlipbook*);
 
 	void BaseAttack();
 
@@ -158,3 +185,8 @@ protected:
 	virtual void Jump() override;
 	virtual void StopJumping() override;
 };
+
+FORCEINLINE float AMyrrhageCharacter::GetCharacterHealth() const
+{
+	return CharacterHealth;
+}

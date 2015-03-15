@@ -29,10 +29,10 @@ public:
 	// Unequip the armor or weapon and remove the stats
 	void Unequip(class UStatManager*, class ABaseEquipment*);
 
-	// Check if any is equipped in the left or right hand
+	// Check if any weapon is equipped in the left or right hand
 	bool HasWeapon();
 
-	/* Return the equipped weapon (based on handedness)
+	/* Check both hands for equipped weapon and return the equipped weapon
 	 * TODO implement the dual-wielding attacks? */
 	ABaseWeapon* GetWeapon();
 protected:

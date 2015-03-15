@@ -28,8 +28,10 @@ public:
 	EClass GetClassType();
 	/* End property getters and setters */
 
+	virtual void PickedUp() override;
+
 	// Override the ABaseItem OnPickUp
-	void OnPickUp_Implementation() override;
+	void OnPickedUp_Implementation() override;
 
 protected:
 	// Equipment can have more than one stat

@@ -30,7 +30,17 @@ EClass ABaseEquipment::GetClassType()
 	return ClassType;
 }
 
-void ABaseEquipment::OnPickUp_Implementation()
+void ABaseEquipment::PickedUp()
+{
+	// Do Custom Stuff here
+	// Call Super::PickedUp()
+	// Or do custom stuff here
+	// Or forget Super and just call OnPickedUp() it's protected after all
+
+	OnPickedUp();
+}
+
+void ABaseEquipment::OnPickedUp_Implementation()
 {
 	Destroy();
 }

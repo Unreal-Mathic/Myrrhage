@@ -21,29 +21,13 @@ public:
 	
 	// Attack based on character's equipped weapon
 	void Attack(UEquipmentManager*, EAttackType, EClass);
+
+	// Default attacks based on class if no weapon is equipped
 	void DefaultBaseAttack(EClass);
 	void DefaultWeakAttack(EClass);
 	void DefaultStrongAttack(EClass);
 	void DefaultUltimateAttack(EClass);
 	
 protected:
-	/** Called form a notify when the attack animation has ended */
-	UFUNCTION(BlueprintCallable, Category = "Game Combat")
-	void StartDoingDamage();
-
-	/** Called form a notify when the attack animation has ended */
-	UFUNCTION(BlueprintCallable, Category = "Game Combat")
-	void StopDoingDamage();
-
-	/** Responsible for creating the collision box */
-	UFUNCTION()
-	void AttackTrace();
-
-	/** Should the character be doing damage at the moment? */
-	bool bDoingDamage;
-
-	void ProcessHitActor(AActor*);
-
-	/** list of actors currently being hit */
-	TArray<AActor*> HitActors;
+	
 };
